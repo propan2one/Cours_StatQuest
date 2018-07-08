@@ -1,0 +1,43 @@
+---
+title: "Tools_box"
+author: "Delmotte Jean"
+date: "8 juillet 2018"
+output: html_document
+---
+
+# Package
+
+la fonction ci dessous va installé les packages d'un vecteur (ici "packages") si il ne sont pas installé sur l'ordinateur, et si ils le sont, le package va les charger
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Fonction to install / load package if it's not here
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+# usage
+packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RColorBrewer",
+              "lattice", "scales", "plotrix", "gridExtra", "reshape2", "tidyr", "randomForest",
+              "cowplot")
+ipak(packages)
+```
+
+# Dataset : 
+## Dataset avec des donnnées spécifié
+```{r}
+donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15))
+```
+
+# plot :
+site très utile : 
+https://sites.google.com/site/rgraphiques/realiser-des-graphiques-avec-le-logiciel-r/les-graphiques
+
+## ggplot2
+il est nécessaire d'installer le package ggplot2 pour utiliser le code dessous
+
+## par defaut

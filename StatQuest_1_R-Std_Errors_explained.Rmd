@@ -1,0 +1,74 @@
+---
+title: "StatQuest_1_R-Std_Errors_explained"
+author: "Delmotte Jean"
+date: "5 juillet 2018"
+output: html_document
+---
+
+from : https://www.youtube.com/watch?v=XNgt7F6FqDU&t=611s
+Au programmme : 
+- Standart erors
+- Bootstraping (en bonus)
+
+# Error Bars :
+bar d'erreurs qui sont lié fortement aux erreurs standart !
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Fonction to install / load package if it's not here
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+# usage
+packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RColorBrewer",
+              "lattice", "scales", "plotrix", "gridExtra", "reshape2", "tidyr", "randomForest",
+              "cowplot")
+ipak(packages)
+```
+
+## Dataset :
+
+Création d'un dataset nommé "donnes" :
+```{r}
+donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15), row.names=c("ind1","ind2","ind3","ind4","ind5","ind6","ind7","ind8"))
+donnees
+```
+
+Les données sont plot sur un scatterplot : (Marche pas :( )
+```{r}
+dotplot(donnees, use.cols = FALSE)
+donnees <- t(donnees)
+
+ggplot(donnees, aes(x= donnees$A)) + geom_bar()
+View(donnees)
+
+```
+
+On peut calculer la moyenne et la écart type (standart deviation) pour chaque valeur :
+
+- la fonction mean() pour calculer la moyenne d'un vecteur
+- la fonction sd() pour calculer l'écart type
+
+On peut ensuite mettre ça dans un dataframe pour plus de visibilité :
+
+```{r}
+# A
+mean(donnees$A)
+sd(donnees$A)
+
+stat <- data.frame(A=c(mean(donnees$A), sd(donnees$A)), B=c(mean(donnees$B), sd(donnees$B)), C=c(mean(donnees$C), sd(donnees$C)), row.names=c("moyenne","ecart type"))
+
+stat
+```
+
+Sur R il existe un fonction pour afficher tout les stat d'une coup :
+- summary() pour "résumé" :
+```{r}
+summary(donnees)
+```
+ En effet on peut observé la moyenne, la médiane et les différents quartiles (à détailler plus tard dans un prochain cours)

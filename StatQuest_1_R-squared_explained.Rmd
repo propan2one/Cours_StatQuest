@@ -1,0 +1,172 @@
+---
+title: "StatQuest_1_R-squared explained"
+author: "Delmotte Jean"
+date: "4 juillet 2018"
+output: html_document
+---
+
+from : https://www.youtube.com/watch?v=2AQKmw14mHM
+
+# Ce que l'on sait sur le Coefficient de corrélation, aussi appelé R et R²
+
+## R
+- Plus le coefficient de corrélation est proche de 1 ou de -1, plus cela indique que deux variables quantitatives (par exemple la taille, le poids ...) sont lié.
+
+## R²
+- Pourquoi on s'intéresse à R² vue qu'on a déjà R ?
+- R² est similaire et fonctionne de la même faàon que R
+- Sont interpretation est beaucoup plus simple :
+  - Ce n'est pas évident mais R=0.7 est 2 fois mieux que R=0.5 (ou les 2 R sont les R classique)
+  - Toutefois, R²=0.7 est 1.4 fois mieux que R²=0.5
+- Enfin R² est beaucoup plus intuitif à calculer
+
+
+## Importer les packages
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Fonction to install / load package if it's not here
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+# usage
+packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RColorBrewer",
+              "lattice", "scales", "plotrix", "gridExtra", "reshape2", "tidyr", "randomForest",
+              "cowplot")
+ipak(packages)
+```
+
+## Analyse d'un dataset :
+
+Création d'un dataset nommé "donnes" :
+```{r}
+donnees <- data.frame(taille=c(185,178,175,171,172), poids=c(82,69,70,65,68), souris=c("1","2","3","4","5"))
+donnees
+```
+
+Regardont un peut ces données : 
+I.1. Quelle est le poids des différentes souris
+```{r}
+plot(donnees$souris, donnees$poids) # x, y
+mean(donnees$poids)
+abline(v=mean(donnees$poids), col= "red")
+```
+Remarque :
+- la fonction "mean()" permet de calculer la moyenne
+- la fonction "abline()" permet de mettre une moyenne sur le graphe
+
+I.2. On peux calculer quelle est la variation entre ces data en avec :
+- La somme de chacun des poids pour une souris "i"- sa moyenne, le tout au carré
+  - soit : 
+  Varation des données = Sum ( poids pour une souris "i" - moyenne du poids de toutes les souris)²
+  
+  - soit :
+  
+$\sum_{i=1}^{5} (Poids_i - \bar{p})²$
+
+
+```{r}
+# - soit, en R :
+var_poids = sum( sapply( (donnees$poids - mean(donnees$poids) ), function(x) x^2) )
+var_poids
+```
+II.1 Quelle est le poids des différentes souris
+```{r}
+plot(donnees$souris, donnees$taille)
+abline(v=mean(donnees$poids), col= "green")
+var_taille = sum( sapply( (donnees$taille - mean(donnees$taille) ), function(x) x^2) )
+var_taille
+```
+
+III. On regarde maintenant pour les deux paramètres :
+- Auparavant on a regardé séparément, et on ordonnée avec le numéro de la souris
+- Maintenant on va réordonnée la taille avec le poids :
+
+*Remarque* : Cette fois on va regardé avec l'excellent package ggplot2 mais la fonction plot aurait pu le faire
+```{r}
+courbe <- ggplot(data = donnees, 
+aes(x=poids, 
+    y=taille
+    ), width=1) +
+  geom_point()
+plot(courbe)
+
+```
+
+- Tout ce qui a été fait ici c'est donc de réordonnée les données sur l'axe x ; la moyenne et la variation des deux axes est donc **exactement la même** que calculé précédemment !
+
+- La distance entre les points et la ligne représentant la moyenne n'a pas **changé** (seul l'ordre à changé)
+
+**Question 1 :**
+
+Sachant ce que l'on sait sur la taille d'une souris, la moyenne du poids est il **le meilleur moyen de prédire** le poids d'une souris ?
+
+**NON** on peut faire bien mieux, il suffit juste de tracé la ligne qui "fit" le mieux les données
+
+```{r}
+courbe <- ggplot(data = donnees, 
+aes(x=poids, 
+    y=taille
+    ), width=1) +
+  geom_point() +
+  geom_smooth(method="lm")
+plot(courbe)
+
+```
+
+Maintenant on peut prédire le poids grace a cette **droite**.
+Si j'ai une souris qui est grosse, je peux regarder ma ligne et faire une bonne prédiction sur le poids.
+
+*Remarque* : On appel cette droite, la droite de régression linéaire
+
+```{r}
+reg<-lm(poids ~ taille, data = donnees)
+reg
+```
+
+
+**Question 2 :**
+- Est-ce que cette ligne "fit" les données mieux que la moyenne ? Si oui combien de fois mieux ?
+- Comment quantifié cette différence alors ?
+
+*réponse* : R²
+
+Pour le calculer il suffit de faire :
+
+R² = ( var(mean(poids)) - var(ligne) ) / var(mean(taille))    avec var le coefficient de variation
+
+\frac{n!}{k!(n-k)!}
+
+
+$\frac{\sum_{i=1}^{5} (Poids_i - \bar{p})² - \sum_{i=1}^{5} (Poids_i - \bar{p})² }{\sum_{i=1}^{5} (taille_i - \bar{p})}$
+
+```{r}
+
+
+var_poids = sum( sapply( (donnees$poids - mean(donnees$poids) ), function(x) x^2) )
+var_poids
+
+
+```
+
+
+
+```{r}
+cor(donnees$poids, donnees$taille)
+```
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
