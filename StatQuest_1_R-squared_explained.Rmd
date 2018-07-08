@@ -53,7 +53,7 @@ I.1. Quelle est le poids des différentes souris
 ```{r}
 plot(donnees$souris, donnees$poids) # x, y
 mean(donnees$poids)
-abline(v=mean(donnees$poids), col= "red")
+abline(v=mean(donnees$poids), col= "red") # don't work yet
 ```
 Remarque :
 - la fonction "mean()" permet de calculer la moyenne

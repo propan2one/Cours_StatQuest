@@ -42,10 +42,11 @@ donnees
 Les données sont plot sur un scatterplot : (Marche pas :( )
 ```{r}
 dotplot(donnees, use.cols = FALSE)
-donnees <- t(donnees)
+#donnees <- t(donnees)
+dotplot(donnees)
 
-ggplot(donnees, aes(x= donnees$A)) + geom_bar()
-View(donnees)
+#ggplot(donnees, aes(x= donnees$A)) + geom_bar()
+#View(donnees)
 
 ```
 
@@ -62,13 +63,66 @@ mean(donnees$A)
 sd(donnees$A)
 
 stat <- data.frame(A=c(mean(donnees$A), sd(donnees$A)), B=c(mean(donnees$B), sd(donnees$B)), C=c(mean(donnees$C), sd(donnees$C)), row.names=c("moyenne","ecart type"))
-
 stat
 ```
 
+**Remarque :**
 Sur R il existe un fonction pour afficher tout les stat d'une coup :
 - summary() pour "résumé" :
 ```{r}
 summary(donnees)
 ```
  En effet on peut observé la moyenne, la médiane et les différents quartiles (à détailler plus tard dans un prochain cours)
+ 
+## On peut aussi afficher les données sous forme de "dynamite plot" :
+
+On retrouve dedans les moyennes et les déviations standart
+```{r}
+dynamitePlot <- function(height, error, names = NA,
+        significance = NA, ylim = c(0,maxLim)){
+    maxLim <- 1.1* max(mapply(sum, height, error))
+    bp <- barplot(height, names.arg = names, ylim = ylim)
+    arrows(x0 = bp, y0 = height, y1 = height + error, angle = 90)
+    text(x = bp, y = 0.4 + height + error, labels = significance)
+}
+
+stat <- as.matrix(donnees) # il faut que les données soient des matrices et non des dataframes
+
+Sig <- c("A", "B", "C")
+dynamitePlot(stat[1,], stat[2,], names = colnames(donnees), significance = Sig)
+```
+ 
+# Il existe 3 types commun de bars d'erreur :
+## 1. Ecart type : (standard deviations abrégé sd)
+- Il nous renseigne sur : comment les données sont distribués autour de la moyenne
+- Un grand écart type nous indique que certaine des données sont loin de la moyenne
+- Dans la plupart des cas, c'est cettre barre d'erreur qui est a utiliser dans les graphs comme il nous rensigne sur la distribution des données
+
+## 2. Erreurs standard
+- Elle nous rensegne sur comment les moyennes sont distribué (et pas les datas)
+
+## 3. Interval de confience (Confidence Intervals)
+- Elles sont relié aux erreurs standart, elles seront expliqué d'avantage dans un autre cours.
+
+```{r}
+# Display the Student's t distributions with various
+# degrees of freedom and compare to the normal distribution
+
+x <- seq(-4, 4, length=100)
+hx <- dnorm(x)
+
+degf <- c(1, 3, 8, 30)
+colors <- c("red", "blue", "darkgreen", "gold", "black")
+labels <- c("df=1", "df=3", "df=8", "df=30", "normal")
+
+plot(x, hx, type="l", lty=2, xlab="x value",
+  ylab="Density", main="Comparison of t Distributions")
+
+for (i in 1:4){
+  lines(x, dt(x,degf[i]), lwd=2, col=colors[i])
+}
+
+legend("topright", inset=.05, title="Distributions",
+  labels, lwd=2, lty=c(1, 1, 1, 1, 2), col=colors)
+```
+
