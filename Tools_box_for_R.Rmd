@@ -27,14 +27,90 @@ packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RCol
 ipak(packages)
 ```
 
+# Base
+
+## Génération de données avec runif()
+Génère un nombre défini de données aléatoire
+
+```{r}
+Alea <- runif(50, min = 65, max = 100) # Génération des données
+# vérification des 50 data
+length(Alea)
+min(Alea)
+max(Alea)
+```
+
 # Dataset : 
 ## Dataset avec des donnnées spécifié
 ```{r}
 donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15))
 ```
 
+
 # plot :
-site très utile : 
+
+## Stripchart
+### Intéret
+- Le stripchart est un graphique qui permet de montré **chaque point individuel de données**, et ce avec plusieurs échantillons par exemple (chacun sur une ligne). ce type de graphique est dit **exploratoire**, Il  permet  en  particulier  de  **déceler  les  erreurs  de saisie**  dans  les  fichiers  (les  points  aberrants  du  type  "virgule  oubliée"  sautent  aux  yeux). Surtout,  ce  type  de  figure  a  le  grand  mérite  de  vous  obliger  à **regarder  vos  données individuelles**  et  donc  à  ne  jamais  oublier  leur **variabilité**.
+
+- Tips : lorsqu'il y a beaucoup de données, il vaut mieux  utiliser  des  symboles  "ouverts".  Leur  empilement  noircit  alors  le  fond  graduellement, en  vous  donnant une  bonne  idée  de  la densité  des  individus  selon  la  zone  du  graphe, autrement dit vous accédez visuellement à la notion statistique de **densité de probabilité**.
+
+### Script
+
+#### Natif
+
+Notont l'utilisation de `vertical=TRUE` pour mettre orienté les bars et `method="jitter"` pour ne pas caché les valeurs identique les unes sous les autres.
+
+```{r}
+donnees <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
+donnees
+
+stripchart(gene_un ~ souris, data = donnees,
+           main = "stripchart de l'expression génique souris wt contre les souris mutante",
+           xlab = "touris", ylab = "Gene expression",
+           col = c("red", "green"),
+           vertical=TRUE)
+```
+
+
+#### Avec ggplot2
+
+Pour plus d'information allé voir : http://www.sthda.com/french/wiki/ggplot2-stripchart-jitter-guide-de-demarrage-rapide-logiciel-r-et-visualisation-de-donnees (mean, legende etc..)
+
+```{r}
+donnees <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
+donnees
+donnees$souris <- as.factor(donnees$souris)
+
+library(ggplot2)
+# Stripcharts basiques
+ggplot(donnees, aes(x=souris, y=gene_un)) + 
+  geom_jitter(position=position_jitter(0)) # permet de séparer sur le coté, 0 pour une colonne et >0 pour plus distribué les points
+```
+
+
+## Lignes sur un plot
+
+### Intéret
+Permet de mettre en évidence la moyenne ou des droites de régression différentes
+### Script
+
+```{r}
+donnees <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
+donnees
+overall_mean <- mean(donnees$gene_un)
+
+p <- ggplot(donnees, aes(x=souris, y=gene_un, color=souris)) + 
+  geom_jitter(position=position_jitter(0), shape=20, cex=4) # Notont le shape pour changer la forme des points
+p + geom_hline(yintercept = overall_mean) # Ici il y a le code necessaire pour rajouter une ligne sur le plot (ici la moyenne)
+```
+Plus de détails sur :
+
+https://ggplot2.tidyverse.org/reference/geom_abline.html
+
+
+## site très utile
+https://stats.stackexchange.com/questions/21370/how-can-i-draw-a-boxplot-without-boxes-in-r
 https://sites.google.com/site/rgraphiques/realiser-des-graphiques-avec-le-logiciel-r/les-graphiques
 
 ## ggplot2
