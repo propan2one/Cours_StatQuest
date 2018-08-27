@@ -113,6 +113,9 @@ https://ggplot2.tidyverse.org/reference/geom_abline.html
 https://stats.stackexchange.com/questions/21370/how-can-i-draw-a-boxplot-without-boxes-in-r
 https://sites.google.com/site/rgraphiques/realiser-des-graphiques-avec-le-logiciel-r/les-graphiques
 
+Formule de math classique :
+https://gist.github.com/derekmcloughlin/896da22518ef2f3d81b0
+
 ## ggplot2
 il est nécessaire d'installer le package ggplot2 pour utiliser le code dessous
 
