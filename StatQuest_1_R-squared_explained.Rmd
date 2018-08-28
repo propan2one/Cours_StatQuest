@@ -20,8 +20,6 @@ from : https://www.youtube.com/watch?v=2AQKmw14mHM
   - Toutefois, R²=0.7 est 1.4 fois mieux que R²=0.5
 - Enfin R² est beaucoup plus intuitif à calculer
 
-
-## Importer les packages
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 

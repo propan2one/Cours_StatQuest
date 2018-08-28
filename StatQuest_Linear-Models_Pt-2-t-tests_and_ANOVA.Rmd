@@ -1,0 +1,95 @@
+---
+title: "StatQuest: Linear Models Pt.2 - t-tests and ANOVA"
+author: "Delmotte_jean"
+date: "25 août 2018"
+output: html_document
+---
+
+from : https://www.youtube.com/watch?v=NF5_btOaCig&t=68s
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Fonction to install / load package if it's not here
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+# usage
+packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RColorBrewer",
+              "lattice", "scales", "plotrix", "gridExtra", "reshape2", "tidyr", "randomForest",
+              "cowplot")
+ipak(packages)
+```
+
+# Petit rappel sur les regressions linéaires
+
+#### 1. Rappel
+
+La fois précédente on a utilisé le **poids des souris** et leurs **taille**. A partir de ça on a voulu connaitre choses :
+- Comment le poids d'une souris est utile pour prédire la taille, le **R²** nous dit ça
+- Et si la relation de ces 2 paramètres était due à la chance, la **p-value** nous dit ça
+
+```{r}
+donnees <- data.frame(taille=c(185,178,175,171,172), poids=c(82,69,70,65,68), souris=c("1","2","3","4","5"))
+donnees
+
+courbe <- ggplot(data = donnees, 
+aes(x=poids, 
+    y=taille
+    ), width=1) +
+  geom_point()
+plot(courbe)
+```
+
+#### 2. Appliquont ces 2 paramètres à un t-test
+
+##### Visualisation des datas
+
+Dans cette exemple nous allons comparé l'expression des gènes d'une souris normal (*wild type*) et une souris ayant une mutation (*mutant*) sur un gène d'intérêt.
+
+- **L'objectif d'un t-test** de comparé les moyennes et de voir si elles sont différentes entre elles.
+- Si la même methode peut calculé la *p*-values d'une régression linéaire et d'un t-test, on peut facilement calculé la pavalues pour des situations plus compliqué.
+
+```{r}
+donnees <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
+donnees
+
+p <- ggplot(donnees, aes(x=souris, y=gene_un, color=souris)) + 
+  geom_jitter(position=position_jitter(0), shape=20, cex=4) # Notont le shape pour changer la forme des points
+p
+```
+
+##### Etape 1 : ignorer l'axe X et trouver la moyenne
+
+La moyenne pour les données est : 
+
+```{r}
+overall_mean <- mean(donnees$gene_un)
+overall_mean
+
+p + geom_hline(yintercept = overall_mean)
+```
+
+##### Etape 2 : Calculer la somme au carré des résidus autour de la moyenne (ssmean)
+
+En français on appel ça aussi la variation résidelle (intra groupe)
+La somme au carré des résidus autour de la moyenne (ssmean, sum of square residuals around the mean). les résidus sont la distance entre le point et la ligne qui corresponds à la moyenne.
+
+Pour une mesure donnée, appelé 'i' :
+ssmean = (i1-m)² + (i2-m)² + (i3-m)² + ...
+
+Ou encore : 
+
+$$SSmean = \sum_{i=1}^{10} (genei - \bar{m)²$$
+
+```{r}
+# - soit, en R :
+SSmean = sum( sapply( (donnees$gene_un - mean(donnees$gene_un) ), function(x) x^2) )
+SSmean
+```
+
+
