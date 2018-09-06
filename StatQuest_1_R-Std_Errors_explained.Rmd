@@ -104,25 +104,72 @@ dynamitePlot(stat[1,], stat[2,], names = colnames(donnees), significance = Sig)
 ## 3. Interval de confience (Confidence Intervals)
 - Elles sont relié aux erreurs standart, elles seront expliqué d'avantage dans un autre cours.
 
+## commençont par regardé un distribution standard :
+- Génération d'une distribution normal, on peut imaginé qu'il s'agit de du poid d'un grand nombre de souris 
 ```{r}
-# Display the Student's t distributions with various
-# degrees of freedom and compare to the normal distribution
+x <- seq(-6, 6, length=100) #génération vecteurs de taille 100 de -4 à 4
+hx <- dnorm(x) # donne les valeurs de la densité de la loi normale centré réduite d'un vecteur de nombre
 
-x <- seq(-4, 4, length=100)
-hx <- dnorm(x)
+normal <- plot(x, hx, type="l", lty=2, xlab="poids des souris",
+  ylab="Density", main="Distribution normal")
 
-degf <- c(1, 3, 8, 30)
-colors <- c("red", "blue", "darkgreen", "gold", "black")
-labels <- c("df=1", "df=3", "df=8", "df=30", "normal")
-
-plot(x, hx, type="l", lty=2, xlab="x value",
-  ylab="Density", main="Comparison of t Distributions")
-
-for (i in 1:4){
-  lines(x, dt(x,degf[i]), lwd=2, col=colors[i])
-}
-
-legend("topright", inset=.05, title="Distributions",
-  labels, lwd=2, lty=c(1, 1, 1, 1, 2), col=colors)
 ```
+Sur **l'axe x** on met le poids de chaque souris
+Sur **l'axe y** on met la proportion de souris pour un poids donnée
+
+### Interprétation du graphique :
+- La plupart des souris ont un poid proche de la moyenne (qui est centré à 0)
+- Un petite portion des souris on un poid un peu plus *petit* que la moyenne
+- Un petite portion des souris on un poid un peu plus *grand* que la moyenne
+
+En générale il n'est pas possible de mesuré tout le souris donc on prends juste 5 mesures
+```{r}
+mesure <- c(0.1, 0.8, 3.5, 1.9, 2.3)
+mesure
+```
+
+Maintenant nous allons calculé l'écart type (deviation standard) : 
+
+-L'écart type étant une mesure de dispersion des valeurs autours de leurs moyenne arithmétique : 
+1) Calculont d'abort la moyenne :
+
+Pour rappelle $\bar{x} = 1/n \sum_{i=1} x_i$ , avec ici n = 5
+
+sur R 
+```{r}
+moyenne = (0.1 + 0.8 + 3.5+ 1.9+ 2.3)/(length(mesure))
+moyenne
+```
+Ou plus simplement : 
+```{r}
+moyenne <- mean(mesure)
+moyenne
+```
+
+2) calculont l'écart type :
+- Par définition :  l'écart-type est la moyenne quadratique des écarts à la moyenne $\bar{x}$ . On le note habituellement s ou sd  (de l'anglais **s**tandard deviation)
+
+$\sqrt{ 1/(n-1) \sum_{i} (x_i -\bar{x})² }$
+
+Soit pour notre exemple : 
+
+$\sqrt{1/(5-1) [ (0.1-1.72)² + (0.8-1.72)² + (3.5-1.72)² + (1.9-1.72)² + (2.3-1.72)² ]} = 1.323631$
+
+```{r}
+somme <- 0
+for (i in mesure) {
+  somme <- ((i-moyenne)*(i-moyenne) + somme) # On peut remplacé moyenne par 1.72
+}
+somme
+
+ecarType <- sqrt((1/(length(mesure)-1))* somme)
+ecarType
+```
+Ou plus simplement :
+
+```{r}
+sd(mesure)
+```
+
+On remarquera que dans $\sqrt{ 1/(n-1) \sum_{i} (x_i -\bar{x})² }$ on divise par $n-1$
 
