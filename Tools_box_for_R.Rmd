@@ -4,6 +4,8 @@ author: "Delmotte Jean"
 date: "8 juillet 2018"
 output: html_document
 ---
+A allé voir, ce site semple très complet
+https://adv-r.hadley.nz/quasiquotation.html
 
 # Package
 
@@ -124,6 +126,17 @@ https://www.listendata.com/2016/01/transpose-data-in-r.html
 
 # plot :
 
+## Plotter uniquement un sous ensemble de données avec ggplot
+
+voir : https://datacarpentry.org/dc_zurich/R-ecology/05-visualisation-ggplot2.html
+
+```{r}
+ggplot(subset(surveys_complete, species_id == "DS"),
+       aes(x = weight, y = hindfoot_length, colour = species_id)) +
+  geom_point(alpha = 0.3,  position = position_jitter()) + stat_smooth(method = "lm") +
+  ylim(c(0, 60))
+```
+
 ## Stripchart
 ### Intéret
 - Le stripchart est un graphique qui permet de montré **chaque point individuel de données**, et ce avec plusieurs échantillons par exemple (chacun sur une ligne). ce type de graphique est dit **exploratoire**, Il  permet  en  particulier  de  **déceler  les  erreurs  de saisie**  dans  les  fichiers  (les  points  aberrants  du  type  "virgule  oubliée"  sautent  aux  yeux). Surtout,  ce  type  de  figure  a  le  grand  mérite  de  vous  obliger  à **regarder  vos  données individuelles**  et  donc  à  ne  jamais  oublier  leur **variabilité**.
@@ -187,7 +200,8 @@ https://ggplot2.tidyverse.org/reference/geom_abline.html
 ## site très utile
 https://stats.stackexchange.com/questions/21370/how-can-i-draw-a-boxplot-without-boxes-in-r
 https://sites.google.com/site/rgraphiques/realiser-des-graphiques-avec-le-logiciel-r/les-graphiques
-https://satijalab.org/seurat/visualization_vignette.html
+Pour de joli figure -> https://satijalab.org/seurat/visualization_vignette.html
+pour la visualisation et des subset de données -> https://datacarpentry.org/dc_zurich/R-ecology/05-visualisation-ggplot2.html
 
 Formule de math classique :
 https://gist.github.com/derekmcloughlin/896da22518ef2f3d81b0
@@ -200,3 +214,6 @@ il est nécessaire d'installer le package ggplot2 pour utiliser le code dessous
 
 ## Manathan plot 
 http://www.gettinggeneticsdone.com/2014/05/qqman-r-package-for-qq-and-manhattan-plots-for-gwas-results.html
+
+xlab("noms de l'echantillon") + 
+  ylab("Nombres des différents polymorphismes") +
