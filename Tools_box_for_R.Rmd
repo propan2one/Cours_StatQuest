@@ -124,17 +124,59 @@ df.aree <- t(df.aree)
 
 https://www.listendata.com/2016/01/transpose-data-in-r.html
 
+
+#### Faire des sous ensemble
+
+```{r}
+which(letters %in% c("a", "x")) 
+subset(df,grepl("t2",df$Command) & grepl("pd",df$Command)) 
+```
 # plot :
 
 ## Plotter uniquement un sous ensemble de données avec ggplot
 
+### Avec le subseting pour 1 choses d'une colonne 
+
+Typiquement les contrôles d'une manip
+
 voir : https://datacarpentry.org/dc_zurich/R-ecology/05-visualisation-ggplot2.html
 
+#### 1. basique
 ```{r}
 ggplot(subset(surveys_complete, species_id == "DS"),
        aes(x = weight, y = hindfoot_length, colour = species_id)) +
   geom_point(alpha = 0.3,  position = position_jitter()) + stat_smooth(method = "lm") +
   ylim(c(0, 60))
+```
+#### 2. Avec grepl
+
+```{r}
+#ggplot(subset(surveys_complete, species_id %in% c("DO", "DM", "DS") & sex %in% c("F", "M")),
+difference_polym_filtred_Med <- ggplot(subset(difference_filtration, grepl("M",difference_filtration$env)), aes(x = time, y = polym)) + 
+  geom_point(aes(col = fam), position = position_jitter()) +
+  scale_colour_manual(values = myColors) +
+  theme(axis.line = element_line(colour = "Black", size = 0.05)) +
+  scale_y_continuous(breaks=seq(0,(max(second_QC$polym)*1.33), 10)) + #ajuster le max ici
+  xlab("Sample") + 
+  ylab("Total of polymorphisms")
+```
+
+### Avec le subsetting de chose dans 2 colonnes différente du dataframe
+
+== Manque le basique 
+
+#### 2. Avec grepl
+
+Le tricks est vraiment ici : `subset(difference_filtration, grepl("A",difference_filtration$env) & grepl("I",difference_filtration$cond)` ou il faut faire un *and* (i.e. `&` ) avec les 2 fonction grep
+
+```{r}
+difference_polym_filtred_Atl <- ggplot(subset(difference_filtration, grepl("A",difference_filtration$env) & grepl("I",difference_filtration$cond)), aes(x = time, y = polym)) + 
+  geom_point(aes(col = fam), position = position_jitter()) +
+  scale_colour_manual(values = myColors) +
+  theme(axis.line = element_line(colour = "Black", size = 0.05)) +
+  scale_y_continuous(breaks=seq(0,(max(second_QC$polym)*1.33), 10)) + #ajuster le max ici
+  xlab("Sample") + 
+  ylab("Total of polymorphisms")
 ```
 
 ## Stripchart
@@ -217,3 +259,47 @@ http://www.gettinggeneticsdone.com/2014/05/qqman-r-package-for-qq-and-manhattan-
 
 xlab("noms de l'echantillon") + 
   ylab("Nombres des différents polymorphismes") +
+  
+## Multiple plot 
+
+https://cran.r-project.org/web/packages/egg/vignettes/Ecosystem.html
+
+https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html via cowplot
+
+```{r}
+# avec grid
+grid.arrange(polym_raw_Atl, polym_dif_Atl, polym_filt_Atl, nrow = 1)
+# avec cowplot
+plot_grid(polym_raw_Atl, polym_dif_Atl, polym_filt_Atl,
+          labels = c("A", "B", "C"),
+          nrow = 1, ncol = 1,
+          align = "h")
+
+# avec ggpubr
+figure <- ggarrange(polym_raw_Atl, polym_dif_Atl, polym_filt_Atl + font("x.text", size = 10),
+                    ncol = 1, nrow = 1)
+figure
+# avec gtable
+library(gtable)
+g1 <- ggplotGrob(polym_raw_Atl)
+g2 <- ggplotGrob(polym_dif_Atl)
+g3 <- ggplotGrob(polym_filt_Atl)
+g <- rbind(g1, g2, g3, size = "first")
+g$widths <- unit.(g1$widths, g2$widths, g3$widths)
+grid.newpage()
+grid.draw(g)
+
+plot(polym_filt_Atl)
+```
+
+
+## Comparer visuellement plusieurs graphique dans le cadre de l'exploration de données
+
+Très utile on peut passé d'un graph à l'autre comme si il y avait une UI
+
+```{r}
+# avec ggpubr
+figure <- ggarrange(polym_raw_Atl, polym_dif_Atl, polym_filt_Atl + font("x.text", size = 10),
+                    ncol = 1, nrow = 1)
+figure
+```
