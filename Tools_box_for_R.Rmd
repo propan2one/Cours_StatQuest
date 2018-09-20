@@ -40,12 +40,69 @@ min(Alea)
 max(Alea)
 ```
 
+## Répéter une chaine de caractère
+
+Facile
+```{r}
+rep("NSI", 3)
+```
+
+Plus Funkie :
+
+```{r}
+c("Matricule", "Donneuse_C", "Donneuse_T", "Donneuse_LT", "Donneuse_B" , rep(c(rep("NSI", 3), rep("F11", 3), rep("F32", 3)), 4))
+```
+
+## Ecrire un fichier CSV à partir d'un dataframe
+
+```{r}
+# Write CSV in R
+write.table(MyData, file = "MyData.csv")
+
+# Write CSV le fichier est encore à retravailler après pb au niveau des tab etc..
+#write.table(suivie_Morta, file = "/home/jean/Documents/out_R/suivie_mortalite.csv",row.names=TRUE, na="", col.names=TRUE, sep = "\t",
+```
+
+## Création d'un vecteur de date
+Ici 10 jours : 
+
+```{r}
+date_manips <- c(as.Date('2018-09-26') + 0:10)
+```
+
 # Dataset : 
 ## Dataset avec des donnnées spécifié
 ```{r}
 donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15))
 ```
 
+## Créer un dataframe avec le bon nombre de colonne et que celle ci soit vide
+
+Ici un dataframe de 4 lignes sur 5 colonnes
+
+```{r}
+Empty_dataframe <- data.frame(matrix(NA, nrow = 4, ncol = 5))
+str(Empty_dataframe)
+```
+
+*remarque* : on peut utilisé un `length(date_manips)` au lieu d'un entier pour facilité la création [voir](###Dataframe-pour-le-suivie-de-mortalité) 
+
+### Dataframe pour le suivie de mortalité
+
+Lorsque
+
+```{r}
+# 
+date_manips <- c(as.Date('2018-09-26') + 0:10)
+jours <- paste0("Jour", as.character(0:10))
+noms_bacs <- c("DATE", "C", "T", "LT", "B", as.character(0:36))
+suivie_Morta <- data.frame(matrix(NA, nrow = length(noms_bacs), ncol = length(date_manips)))
+str(suivie_Morta)
+rownames(suivie_Morta) <- noms_bacs
+colnames(suivie_Morta) <- jours
+suivie_Morta[1,] <- as.character(date_manips)
+suivie_Morta
+```
 
 # plot :
 
@@ -120,3 +177,10 @@ https://gist.github.com/derekmcloughlin/896da22518ef2f3d81b0
 il est nécessaire d'installer le package ggplot2 pour utiliser le code dessous
 
 ## par defaut
+
+A ajouté dans les manip de dataframe
+
+Reorder des colonnes dans un dataframe, ici on met la 12eme colonne du dataframe à la place de la 1er
+```{r}
+suivie_Morta <- suivie_Morta[,c(12,1:11)]
+```
