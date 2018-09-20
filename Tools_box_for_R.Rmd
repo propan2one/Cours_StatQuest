@@ -4,6 +4,8 @@ author: "Delmotte Jean"
 date: "8 juillet 2018"
 output: html_document
 ---
+A allé voir, ce site semple très complet
+https://adv-r.hadley.nz/quasiquotation.html
 
 # Package
 
@@ -71,6 +73,7 @@ date_manips <- c(as.Date('2018-09-26') + 0:10)
 ```
 
 # Dataset : 
+# Creation dataset : 
 ## Dataset avec des donnnées spécifié
 ```{r}
 donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15))
@@ -103,8 +106,136 @@ colnames(suivie_Morta) <- jours
 suivie_Morta[1,] <- as.character(date_manips)
 suivie_Morta
 ```
+# Nettoyage de données
 
+aide : http://docs.h2o.ai/h2o/latest-stable/h2o-docs/data-munging/replacing-values.html
+
+#### Appliqué le basename dans R
+
+```{r}
+filepath <- "~/Document/analyse_R/Nom_fichier.csv"
+sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(filepath))
+```
+
+#### Changé une ligne 
+
+```{r}
+abondance_brut <- data.frame(gene_un=c(178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(69,70,65,68, 70, 71, 67, 63, 80))
+abondance_brut
+```
+
+```{r}
+name_exp <- c("~/Document/analyse_R/Nom_fichier.csv", "~/Document/analyse_R/Nom_fichier1.csv") # crétion d'un vecteur qui aura le basename des manips
+abondance_brut[1,] <- name_exp
+str(name_exp)
+Transition_vec <- c()
+
+for (l in abondance_brut[1,]) {
+  l <-sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(l))
+  Transition_vec <- rbind(Transition_vec, l)
+}
+abondance_brut[1,] <- Transition_vec
+abondance_brut
+```
+
+
+#### Changé les valeurs d'une colonnes selon une condition
+
+Ici la contidtion c'est si dans la colonne des valeurs sont égale à 10 alors on remplace par 240
+```{r}
+abondance_brut$temps <- ifelse(test=abondance_brut$temps == 10, 240, abondance_brut$temps)
+```
+
+#### Supprimer Des lignes
+
+```{r}
+donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15), D=c("A", "A", "A", "A", "B", "B", "B", "B"))
+donnees
+```
+
+```{r}
+donnees <- donnees[ !(donnees$D %in% "B"),]
+donnees
+```
+
+**Remarque** : On peut remarquer que il y a une virgule `"B"),]` pour spécifier qu'il s'agit d'enlever des lignes
+
+#### Supprimer Des colonnes
+
+```{r}
+# Basique
+x.sub6 <- x.df[, 4]
+first_QC <- first_QC[c(-1,2),] # 2 col
+# avec un range
+QC <- raw_QC[, seq(0, ncol(raw_QC), 4)]
+
+donnees
+```
+
+#### Transposer des données
+
+```{r}
+df.aree <- t(df.aree)
+```
+
+#### Transformer les données du format long au format court
+
+https://www.listendata.com/2016/01/transpose-data-in-r.html
+
+
+#### Faire des sous ensemble
+
+```{r}
+which(letters %in% c("a", "x")) 
+subset(df,grepl("t2",df$Command) & grepl("pd",df$Command)) 
+```
 # plot :
+
+## Plotter uniquement un sous ensemble de données avec ggplot
+
+### Avec le subseting pour 1 choses d'une colonne 
+
+Typiquement les contrôles d'une manip
+
+voir : https://datacarpentry.org/dc_zurich/R-ecology/05-visualisation-ggplot2.html
+
+#### 1. basique
+```{r}
+ggplot(subset(surveys_complete, species_id == "DS"),
+       aes(x = weight, y = hindfoot_length, colour = species_id)) +
+  geom_point(alpha = 0.3,  position = position_jitter()) + stat_smooth(method = "lm") +
+  ylim(c(0, 60))
+```
+#### 2. Avec grepl
+
+```{r}
+#ggplot(subset(surveys_complete, species_id %in% c("DO", "DM", "DS") & sex %in% c("F", "M")),
+difference_polym_filtred_Med <- ggplot(subset(difference_filtration, grepl("M",difference_filtration$env)), aes(x = time, y = polym)) + 
+  geom_point(aes(col = fam), position = position_jitter()) +
+  scale_colour_manual(values = myColors) +
+  theme(axis.line = element_line(colour = "Black", size = 0.05)) +
+  scale_y_continuous(breaks=seq(0,(max(second_QC$polym)*1.33), 10)) + #ajuster le max ici
+  xlab("Sample") + 
+  ylab("Total of polymorphisms")
+```
+
+### Avec le subsetting de chose dans 2 colonnes différente du dataframe
+
+== Manque le basique 
+
+#### 2. Avec grepl
+
+Le tricks est vraiment ici : `subset(difference_filtration, grepl("A",difference_filtration$env) & grepl("I",difference_filtration$cond)` ou il faut faire un *and* (i.e. `&` ) avec les 2 fonction grep
+
+```{r}
+difference_polym_filtred_Atl <- ggplot(subset(difference_filtration, grepl("A",difference_filtration$env) & grepl("I",difference_filtration$cond)), aes(x = time, y = polym)) + 
+  geom_point(aes(col = fam), position = position_jitter()) +
+  scale_colour_manual(values = myColors) +
+  theme(axis.line = element_line(colour = "Black", size = 0.05)) +
+  scale_y_continuous(breaks=seq(0,(max(second_QC$polym)*1.33), 10)) + #ajuster le max ici
+  xlab("Sample") + 
+  ylab("Total of polymorphisms")
+```
 
 ## Stripchart
 ### Intéret
@@ -169,6 +300,8 @@ https://ggplot2.tidyverse.org/reference/geom_abline.html
 ## site très utile
 https://stats.stackexchange.com/questions/21370/how-can-i-draw-a-boxplot-without-boxes-in-r
 https://sites.google.com/site/rgraphiques/realiser-des-graphiques-avec-le-logiciel-r/les-graphiques
+Pour de joli figure -> https://satijalab.org/seurat/visualization_vignette.html
+pour la visualisation et des subset de données -> https://datacarpentry.org/dc_zurich/R-ecology/05-visualisation-ggplot2.html
 
 Formule de math classique :
 https://gist.github.com/derekmcloughlin/896da22518ef2f3d81b0
@@ -183,4 +316,53 @@ A ajouté dans les manip de dataframe
 Reorder des colonnes dans un dataframe, ici on met la 12eme colonne du dataframe à la place de la 1er
 ```{r}
 suivie_Morta <- suivie_Morta[,c(12,1:11)]
+
+## Manathan plot 
+http://www.gettinggeneticsdone.com/2014/05/qqman-r-package-for-qq-and-manhattan-plots-for-gwas-results.html
+
+xlab("noms de l'echantillon") + 
+  ylab("Nombres des différents polymorphismes") +
+  
+## Multiple plot 
+
+https://cran.r-project.org/web/packages/egg/vignettes/Ecosystem.html
+
+https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html via cowplot
+
+```{r}
+# avec grid
+grid.arrange(polym_raw_Atl, polym_dif_Atl, polym_filt_Atl, nrow = 1)
+# avec cowplot
+plot_grid(polym_raw_Atl, polym_dif_Atl, polym_filt_Atl,
+          labels = c("A", "B", "C"),
+          nrow = 1, ncol = 1,
+          align = "h")
+
+# avec ggpubr
+figure <- ggarrange(polym_raw_Atl, polym_dif_Atl, polym_filt_Atl + font("x.text", size = 10),
+                    ncol = 1, nrow = 1)
+figure
+# avec gtable
+library(gtable)
+g1 <- ggplotGrob(polym_raw_Atl)
+g2 <- ggplotGrob(polym_dif_Atl)
+g3 <- ggplotGrob(polym_filt_Atl)
+g <- rbind(g1, g2, g3, size = "first")
+g$widths <- unit.(g1$widths, g2$widths, g3$widths)
+grid.newpage()
+grid.draw(g)
+
+plot(polym_filt_Atl)
+```
+
+
+## Comparer visuellement plusieurs graphique dans le cadre de l'exploration de données
+
+Très utile on peut passé d'un graph à l'autre comme si il y avait une UI
+
+```{r}
+# avec ggpubr
+figure <- ggarrange(polym_raw_Atl, polym_dif_Atl, polym_filt_Atl + font("x.text", size = 10),
+                    ncol = 1, nrow = 1)
+figure
 ```
