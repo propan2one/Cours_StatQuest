@@ -1,0 +1,272 @@
+---
+title: "test_snp"
+author: "Delmotte_jean"
+date: "17 septembre 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Fonction to install / load package if it's not here
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+# usage
+packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RColorBrewer",
+              "lattice", "scales", "plotrix", "gridExtra", "reshape2", "tidyr", "randomForest",
+              "cowplot", "gtable", "ggpubr", "vcfR")
+ipak(packages)
+
+```
+
+# Table of contents
+* [Contexte des données](##Contexte-des-données)
+
+## Package utilisé
+
+```{r}
+# usage
+packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RColorBrewer",
+              "lattice", "scales", "plotrix", "gridExtra", "reshape2", "tidyr", "randomForest",
+              "cowplot")
+ipak(packages)
+```
+
+
+# Exploration des VCFs 
+
+Ici avec l'exemple fournit, ou l'on a : loads the objects ‘gff’, ‘dna’ and ‘vcf’ from the ‘vcfR_example’ dataset
+```{r}
+data(vcfR_example)
+vcf
+```
+
+## La méta région
+
+Cette métarégion contient les informations à propos du fichier, sa création, les commandes appliqué dessus etc.. Chaque ligne commence par `##`
+
+
+```{r}
+strwrap(vcf@meta[1:7])
+```
+- [1] ligne la version du VCF
+- [2] Le soft qui a créer le VCF
+- [3] ..
+
+Il existe une fonction dans le package pour mieux visualisé les métadonnées, sur les objets `vcfR`.
+
+```{r}
+queryMETA(vcf)
+```
+
+Si un paramètre est inclue, les informations sur ce paramètre uniquement sont fourni. Par exemple avec l'élement pour la profondeur `DP`. Ca peut être utile pour montrer des listes d'informations.
+
+```{r}
+queryMETA(vcf, element = 'DP')
+```
+
+On peut voir que l'acronyme est définit par l'acronyme `FORMAT` et `INFO`
+
+```{r}
+queryMETA(vcf, element = 'FORMAT=<ID=DP')
+```
+
+# La région fixe
+
+Cette région contient l'ensemble des informations pour chaque variant. Les 8 premières colonnes de la région fixe sont : `CHROM, POS, ID, REF, ALT, QUAL, FILTER and INFO`. 
+
+```{r}
+head(getFIX(vcf))
+```
+
+remarque : *Here, the ID field has not been used, so it consists of missing data (NA)*.
+
+# La région genotype (gt)
+
+La région genotype (gt) contient des information sur chaque variant pour chacun des échantillons. LEs valeurs de chaque variant et de chaque échantillons sont délimité par ",". Plusieurs types de données peuvent être stocké ici. Le format de ces données est précisé par la colonne FORMAT (9eme colonne des VCFs).
+
+```{r}
+vcf@gt[1:6, 1:4]
+```
+
+Here we see that we have information for GT, AD, DP, GQ and PL. The definition of these acronyms can be referenced by querying the the meta region, as demonstrated previously. Every variant does not necessarily have the same information (e.g., SNPs and indels may be handled differently), so the rows are best treated independently. Different variant callers may include different information in this region.
+
+# vcfR
+
+## Charger les VCFs
+
+En utilisant le package R "vcfR" on peut **lire** des fichiers au format VCFs dans la mémoire en utilisant la fonction `read.vcfR()`. Une fois en mémoire on peut utilisé la méthode `head()` pour afficher les information des 3 régions précédemment décrite.
+
+/export/home/delmotte/Documents/Divoshv1_Resultats/commparaison_F11_AvsM/AF11-I-T48_intersec_3_replicats.vcf
+/export/home/delmotte/Documents/Divoshv1_Resultats/commparaison_F11_AvsM/MF11-I-T48_intersec_3_replicats.vcf
+
+
+```{r}
+# Chargement du VCF
+vcf <- read.vcfR("/export/home/delmotte/Documents/Divoshv1_Resultats/commparaison_F11_AvsM/AF11-I-T48_intersec_3_replicats.vcf")
+# On peut éviter d'afficher le texte de l'erreur standart en enlevant la verbose ou alors il faudra la stocker dans un log
+vcf <- read.vcfR("/export/home/delmotte/Documents/Divoshv1_Resultats/commparaison_F11_AvsM/AF11-I-T48_intersec_3_replicats.vcf", verbose = FALSE )
+head(vcf)
+```
+
+## Queries
+
+Une fois l'objet "vcfR" contenant le vcf est validé on peut formuler des **queries** sur cette objet.
+
+Par exemple p
+```{r}
+is.polymorphic(vcf, na.omit = TRUE)
+
+
+```
+
+
+## Subsetting
+
+Le package vcfR fourni la possibilité de manipuler les données des VCFs. Avec ces fonctionnalité il est possible de créer des fichiers VCF **invalide**. 
+```{r}
+vcf[1:4,]
+```
+
+## Exctracting matrices des objets vcfR
+
+Comme les datas dans les fichiers VCFs sont compliqué a analysé, elles ne sont pas faite comme un simple dataframe, il faut un moyen pour utiliser ces données comme des table ou des matrices. 
+
+In the genotype section we see four columns: a FORMAT column that indicates the contents of subsequent columns and three sample columns. Variants one through four contain four pieces of information with each genotype (GT:GQ:DP:HQ). The meaning of these acronyms should be defined in the meta section. Each element of the genotype matrix therefore contains a colon delimeted list that we need to parse before we can work with it. 
+
+Par exemple, si l'ont veut analysé les génotypes on voudrait les isolé des autres informations. Cela peut être fait avec la fonction `extract.gt()`.
+
+
+```{r}
+data("vcfR_test")
+head(vcfR_test)
+gt <- extract.gt(vcfR_test)
+gt
+```
+
+Lorsqu'une section sur les génotypes est inclue dans les données des VCFs le seul champs obligatoire est celui des génotypes et ce doit être le 1er. Le génotype est le champs par défaut des de la  fonction `extract.gt()`.
+
+On peut aussi **extraire les données de profondeur (DP)** de chaque variant et les convrtire au format numérique, pour des comparaisons quantitatives par exemple.
+
+```{r}
+
+gt <- extract.gt(vcfR_test, element = 'DP', as.numeric = TRUE)
+gt
+```
+
+## Matrix parsing
+
+see https://knausb.github.io/vcfR_documentation/matrices.html
+
+# Tidy vcfR
+
+Le package vcfR a été construit pour fonctionné avec des des systèmes graphiques. Le concept de "tidy data" présent via le package tidyr  fonctionne donc.
+
+La fonction `vcfR2tidy()` va convertire toutes les données de l'objet vcfR dans un objet "tibble". Cette objet "tibble" est une version trié d'dun dataframe (See `?tibble::tibble` for more information). Cela peut résulter dans la création d'une énorme structure de données. C'est pourquoi on peut spécifié quelle partie des données VCFs on veut convertir en tibble.
+La fonction `vcf_field_names()` peut nous permettre de nous souvenir quelles sont les données contenue dans notre objet vcfR.
+
+```{r}
+vcf_field_names(vcfR_test, tag = "FORMAT")
+
+Z <- vcfR2tidy(vcfR_test, format_fields = c("GT", "DP"))
+
+names(Z)
+```
+
+Le résultat est une liste de contenant les 3 éléments "fix", "gt" et "meta". C'est analogue aux 3 slots observé dans l'objet vcfR. Chaque élement e la liste est un tibble qui peut être examiné comme n'importe quelle éléments de liste : 
+
+```{r}
+Z$meta
+Z$fix
+Z$gt
+```
+
+On peut remarqué que les éléments on un "ChromKey" pour aidé à coordonner les variant dans les 2 structures. lso, the information from the meta region has been used to assign a type to each column (e.g., integer, character, etc.). These data structures should now be in a format that other packages in the ‘tidyverse’ can work with. More information about vcfR2tidy() can be found in its manual page (?vcfR2tidy).
+
+___
+
+# Les objets chromR
+
+Les objets chromR ont été créé pour intégré les VCF, les sequences FASTA, et les données d'annotations. Par exemple, la référence contient souvent des des régions ou 'N' est appelé (des nucléotides ambigus) et ces régions peuvent être large. Comme les technologie actuelle de séquençage appelle des nucléotides (ATGC) mappé des régions contenant des N peut être pourri. Du coup,  aucun variant peut être observé dans ces régions.
+
+## Créer un objet chromR
+
+
+```{r}
+# Input the files.
+vcf <- read.vcfR("/export/home/delmotte/Documents/Divoshv1_Resultats/commparaison_F11_AvsM/AF11-I-T48_intersec_3_replicats.vcf", verbose = FALSE )
+dna <- ape::read.dna("/export/home/delmotte/Documents/data/OsHV-1_strain_microVar_variant_A.fasta", format = "fasta")
+gff <- read.table("/export/home/delmotte/Documents/data/OsHV-1_strain_microVar_variant_A.gff3", sep="\t", quote="")
+
+# Create a chromR object.
+chrom <- create.chromR(name="Supercontig", vcf=vcf, seq=dna, ann=gff, verbose=TRUE)
+```
+
+Note : le mesage d'erreur indique que les noms de toutes les données ne match pas parfaitement. C'est mon experience que c'est très commun dans les genom projects. Plutôt que de demander à l'utilisateur de créer un fichier duplicat qui a exactement les mêmes données mais des noms standardisé le créateur du package permet à l'utilisateur de d'exercer son jugement. Si on voit un tel message et que l'utilisateur pense que le noms est correcte **ce message peut être ignorer** et procecé.
+
+Une fois que l'objet chromR a été créé on peut vérifier que le contenue est bien ce dont on s'attend. En executant le nom du projet sans argument on invoque la methode `show`. Cette méthode pour les objets chromR permet de compté pour les types de données utilisé pour créer l'objet chromR et qui ne font pas partie du projet.
+
+```{r}
+chrom
+```
+
+Il existe 2 façon de voir graphiquement les objets chromR, la premiere est avec la methode `plot()` qui montre les histogramme des données résumées :
+
+*1. L'histogramme*
+
+```{r}
+plot(chrom)
+```
+
+- The read depth est ici la somme le long de tout les échantillons. On peut voir ici que le pique entre 0 et 1000 de profondeur. 
+- Mapping quality a un pique élevé entre 40 et 42 
+- Quality (QUAL) est moins facile à interprété, il semble que la plupart de nos variant montre une ... L'interprétation la plus simple est que la QUAL n'est pas un très bon paramètre pour jugé les variants.
+-  The last panel for SNP densities is empty because this data is created during the processing of chromR objects, which we will discuss below.
+
+*2. Le chromo plot*
+
+Ce plot montre les mêmes informations que la methode plot vue avant, seulement les données sont distribué le long des coordonnées génomiques. De plus il y a aussi les annotations qui sont, ou non, représenté.
+
+```{r}
+chromoqc(chrom)
+```
+
+## Processing chromR  objects
+
+La création et le processing des objets chromR sont divisé en différente taches séparé. La création charge les données dans l'objets chromR et ne doit être requise qu'une fois normalement. Le processing de l'objet chromR génère des données résumés. Certaines de ces résumé auront besoin d'être mis à jour comme des objet chromR. Par exemple la taille de la "sliding window" utilisé pour résumé la densité de variant et le GC content change l'objet chromR et auront besoinf dtre processé pour mettre à jour l'information.
+
+
+```{r}
+chrom <- proc.chromR(chrom, verbose = TRUE)
+plot(chrom)
+chromoqc(chrom)
+```
+
+Maintenant on a les densité de variant. Quand on observe le chromoqc plot on observe que on a aussi la densité de variant, le nucleotide content aussi bien que la représentation de notre référence a les nucléotides ATCG ou ambigus.
+
+## Masking low quality variants
+
+Maintenant que l'on a gagner en perspective sur nos données nous somme près à prendre des décissions. On peut utiliser la fonction `masker()` pour masquer les variant que nous jugeons indésirables. En masquant ces variant on retient la geométrie des matrices de données. Cela peut aider  les actions qui dépendent de la position des variant dans la matrics de données. Comme cela peut affecté quelles variants nous voulons utilisé dans notre analyse nous allons processé le chromR objet pour les masqué
+
+```{r}
+chrom <- masker(chrom, min_QUAL=0, min_DP=20, max_DP=1000, min_MQ=20, max_MQ=60.5)
+chrom <- proc.chromR(chrom, verbose = TRUE)
+plot(chrom)
+chromoqc(chrom)
+```
+
+Ces actions nous permettent de nous concentrer sur les variant de *depth relativement* uniforme et de bonne qualité de mapping. On peut voir que les chomoqc plot pour validé les action a affecté les données. En pratique cela requiere différents choix de paramétrisation et e visualisation avant  d'obtenir un résultat désiré. A travers la visualisations de ces changement, il est espéré que les chercheurs feront des décisions sur comment ces changment affect les données
+
+## Ecrire les VCFs
+
+Une fois que le traitement des VCFs a été réalisé on peut **sauvegarder le fichier comme un VCF** en utilisant la fonction `write.vcf()`
+
+
+```{r}
+#write.vcf(vcf, "myVCFdata_filtered.vcf.gz")
+```

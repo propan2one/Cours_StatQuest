@@ -52,14 +52,14 @@ donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(
 
 aide : http://docs.h2o.ai/h2o/latest-stable/h2o-docs/data-munging/replacing-values.html
 
-#### Appliqué le basename dans R
+## Appliqué le basename dans R
 
 ```{r}
 filepath <- "~/Document/analyse_R/Nom_fichier.csv"
 sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(filepath))
 ```
 
-#### Changé une ligne 
+## Changé une ligne 
 
 ```{r}
 abondance_brut <- data.frame(gene_un=c(178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(69,70,65,68, 70, 71, 67, 63, 80))
@@ -81,14 +81,14 @@ abondance_brut
 ```
 
 
-#### Changé les valeurs d'une colonnes selon une condition
+## Changé les valeurs d'une colonnes selon une condition
 
 Ici la contidtion c'est si dans la colonne des valeurs sont égale à 10 alors on remplace par 240
 ```{r}
 abondance_brut$temps <- ifelse(test=abondance_brut$temps == 10, 240, abondance_brut$temps)
 ```
 
-#### Supprimer Des lignes
+## Supprimer Des lignes
 
 ```{r}
 donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15), D=c("A", "A", "A", "A", "B", "B", "B", "B"))
@@ -102,7 +102,7 @@ donnees
 
 **Remarque** : On peut remarquer que il y a une virgule `"B"),]` pour spécifier qu'il s'agit d'enlever des lignes
 
-#### Supprimer Des colonnes
+## Supprimer Des colonnes
 
 ```{r}
 # Basique
@@ -114,23 +114,42 @@ QC <- raw_QC[, seq(0, ncol(raw_QC), 4)]
 donnees
 ```
 
-#### Transposer des données
+## Transposer des données
 
 ```{r}
 df.aree <- t(df.aree)
 ```
 
-#### Transformer les données du format long au format court
+## Transformer les données du format long au format court
 
 https://www.listendata.com/2016/01/transpose-data-in-r.html
 
 
-#### Faire des sous ensemble
+## Faire des sous ensemble
 
 ```{r}
 which(letters %in% c("a", "x")) 
 subset(df,grepl("t2",df$Command) & grepl("pd",df$Command)) 
 ```
+
+## Chnangé les chaines de caractère dans un colonne d'un dataframe
+
+### A la base
+
+```{r}
+file[ file == "./." ] <- "ab"
+```
+
+
+### Avec gsub
+
+```{r}
+file <- gsub("./.","ab",file, fixed = TRUE)
+```
+
+# Statistiques
+
+Post très utile avec les visualisations des p-values : https://www.r-bloggers.com/add-p-values-and-significance-levels-to-ggplots/
 # plot :
 
 ## Plotter uniquement un sous ensemble de données avec ggplot
