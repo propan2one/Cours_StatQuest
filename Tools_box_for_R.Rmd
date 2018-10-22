@@ -31,6 +31,69 @@ ipak(packages)
 
 # Base
 
+## Type d'objets
+
+### Vecteurs
+
+Dans R un vecteur une **liste d'éléments** c'est l'un des éléments de base du language.
+```{r}
+# Vecteur numérique
+vecteur <- c(1,25,34,58)
+
+# Vecteur caractères
+drapeau <- c("noir", "jaune", "vert")
+
+# Vecteur vide avec la fonction vector, ici 5 fois des éléments "character" vide
+vec_vide <- vector("character", 5)
+vec_vide
+```
+
+
+### Matrices
+
+Les matrices sont crée à partir de vecteurs et sont à deux dimensions, c'est en gros un vecteur 2D. Tous les éléments d'une matrice sont du même type.
+
+De plus, les numéros de lignes et de colonnes sont représentés par des chiffres entre crochets : le chiffre **avant la virgule** indique le **numéro de ligne**, alors que le chiffre **après** représente **les colonnes**. Un moyen mémo pour éviter à tester h24 les 2 :
+
+- "lignes" il y a moins de lettre donc c'est avant la virgule, et "colonne" il y a plus de lettre donc c'est après
+
+```{r}
+# Creation matrice 1, ncol précise le nombre de colonne
+matrice <-matrix(c(1:15), ncol=3)
+
+# Creation matrice 2
+matrice <-matrix(c(1:15), 3)
+
+# Creation matrice 3, le vecteur c(1:15)*100 est directement introduit dans la matrice
+matrice <- matrix((1:15)*100, nrow = 3, byrow = TRUE)
+
+# Creation matrice vide
+matrice <- matrix(NA, nrow = 4, ncol = 5)
+```
+
+Remarque : L'utilisation de matrice [vide](###Créer-un-dataframe-avec-le-bon-nombre-de-colonne-et-que-celle-ci-soit-vide)peut être intéressante quand on utilise un script R dans un pipeline si on veut importer des données d'un fichier mais que celui-ci est vide, ça permet d'éviter de faire planter le pipeline si l'erreur est gérer, voir plus loin.
+
+### Arrays
+
+Les arrays sont crée à partir de vecteurs et sont à $n$ dimensions. La numérotation est identique à celle des [matrices](###Matrices). Les niveaux supplémentaires sont indiqué au dessus de chaque plan.
+
+Ici nous allons créer un tableau à 3 lignes, 5 colonnes et 2 niveaux par ordre alphabétique
+
+```{r}
+array3d <- array(letters, dim =c(3,5,2))
+array3d
+```
+
+Il faut s'imaginer ici, que le premier étage du cube est `,,1`, le deuxième `,,2` etc si il y en avait d'autre. le nombre de virgule designe la dimension représenté : avant virgule la première c'est les lignes (comme pour les [matrices](###Matrices)), avant la 2eme virgule c'est les colonnes (là aussi comme pour les [matrices](###Matrices)), des numéros de niveaux avant la 3eme etc..
+
+Remarque en pratique les arrays sont pas vraiment utilisé.
+
+## e
+
+```{r}
+
+```
+
 ## Génération de données avec runif()
 Génère un nombre défini de données aléatoire
 
@@ -73,13 +136,13 @@ date_manips <- c(as.Date('2018-09-26') + 0:10)
 ```
 
 # Dataset : 
-# Creation dataset : 
-## Dataset avec des donnnées spécifié
+## Creation dataset : 
+### Dataset avec des donnnées spécifié
 ```{r}
 donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15))
 ```
 
-## Créer un dataframe avec le bon nombre de colonne et que celle ci soit vide
+### Créer un dataframe avec le bon nombre de colonne et que celle ci soit vide
 
 Ici un dataframe de 4 lignes sur 5 colonnes
 
@@ -106,18 +169,18 @@ colnames(suivie_Morta) <- jours
 suivie_Morta[1,] <- as.character(date_manips)
 suivie_Morta
 ```
-# Nettoyage de données
+## Nettoyage de données
 
 aide : http://docs.h2o.ai/h2o/latest-stable/h2o-docs/data-munging/replacing-values.html
 
-## Appliqué le basename dans R
+### Appliqué le basename dans R
 
 ```{r}
 filepath <- "~/Document/analyse_R/Nom_fichier.csv"
 sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(filepath))
 ```
 
-## Changé une ligne 
+### Changé une ligne 
 
 ```{r}
 abondance_brut <- data.frame(gene_un=c(178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(69,70,65,68, 70, 71, 67, 63, 80))
@@ -139,14 +202,14 @@ abondance_brut
 ```
 
 
-## Changé les valeurs d'une colonnes selon une condition
+### Changé les valeurs d'une colonnes selon une condition
 
 Ici la contidtion c'est si dans la colonne des valeurs sont égale à 10 alors on remplace par 240
 ```{r}
 abondance_brut$temps <- ifelse(test=abondance_brut$temps == 10, 240, abondance_brut$temps)
 ```
 
-## Supprimer Des lignes
+### Supprimer Des lignes
 
 ```{r}
 donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15), D=c("A", "A", "A", "A", "B", "B", "B", "B"))
@@ -160,7 +223,7 @@ donnees
 
 **Remarque** : On peut remarquer que il y a une virgule `"B"),]` pour spécifier qu'il s'agit d'enlever des lignes
 
-## Supprimer Des colonnes
+### Supprimer Des colonnes
 
 ```{r}
 # Basique
@@ -172,25 +235,44 @@ QC <- raw_QC[, seq(0, ncol(raw_QC), 4)]
 donnees
 ```
 
-## Transposer des données
+### Transposer des données
 
 ```{r}
 df.aree <- t(df.aree)
 ```
 
-## Transformer les données du format long au format court
+### Transformer les données du format long au format court
 
 https://www.listendata.com/2016/01/transpose-data-in-r.html
 
 
-## Faire des sous ensemble
+### Faire des sous ensemble
 
 ```{r}
 which(letters %in% c("a", "x")) 
 subset(df,grepl("t2",df$Command) & grepl("pd",df$Command)) 
 ```
 
-## Chnangé les chaines de caractère dans un colonne d'un dataframe
+### Rechercher une valeur spécifiquement dans un df
+Ici on recherche  à renvoyer la ligne ou il y a la valeur 42530 dans la colonne `pos`
+
+```{r}
+Fichier_A[Fichier_A[, "pos"] == 42530,]
+```
+
+### Afficher la plus petite valeurs d'un dataframe
+
+# Column name with minimum value
+names(df)[which.min(apply(df,MARGIN=2,min))]
+
+# Row name with minimum value
+rownames(df)[which.min(apply(df,MARGIN=1,min))]
+
+### Renvoyer le noms de la colonne du max dans une ligne
+
+colnames(transi)[apply(transi,1,which.max)]
+
+## Changé les chaines de caractère dans une colonne d'un dataframe
 
 ### A la base
 
@@ -335,13 +417,11 @@ A ajouté dans les manip de dataframe
 Reorder des colonnes dans un dataframe, ici on met la 12eme colonne du dataframe à la place de la 1er
 ```{r}
 suivie_Morta <- suivie_Morta[,c(12,1:11)]
+```
 
 ## Manathan plot 
 http://www.gettinggeneticsdone.com/2014/05/qqman-r-package-for-qq-and-manhattan-plots-for-gwas-results.html
 
-xlab("noms de l'echantillon") + 
-  ylab("Nombres des différents polymorphismes") +
-  
 ## Multiple plot 
 
 https://cran.r-project.org/web/packages/egg/vignettes/Ecosystem.html
@@ -385,3 +465,27 @@ figure <- ggarrange(polym_raw_Atl, polym_dif_Atl, polym_filt_Atl + font("x.text"
                     ncol = 1, nrow = 1)
 figure
 ```
+
+# Rmarkdown
+
+Sur le markdown : 
+
+https://bookdown.org/yihui/rmarkdown/html-document.html#section-numbering
+
+http://larmarange.github.io/analyse-R/rmarkdown-les-rapports-automatises.html
+
+## loop sur des fichier Rmarkdown avec des arguments et des output file spécifique
+
+
+```{bash}
+for dir in ~/Documents/resultats_pysamstats/pysamsatats_divoshv1/*AF11-I-T48*/
+do
+    expe=${dir%*/}
+    echo ${expe##*/}
+    files=(`ls ${dir}*_aln_PysamStat_var_raw.txt`)
+    params="A='${files[0]}',B='${files[1]}',C='${files[2]}', d='30', n='${expe##*/}'" 
+    #Rscript -e "rmarkdown::render('~/Documents/divohsv1/analyse_fichier_pysamstats.Rmd', params=list(${params}))"
+    Rscript -e "rmarkdown::render('~/Documents/divohsv1/analyse_fichier_pysamstats.Rmd', params=list(${params}),output_file = '${expe##*/}.html', output_dir = '/home/jean/Documents/resultats_pysamstats/')"
+done
+```
+
