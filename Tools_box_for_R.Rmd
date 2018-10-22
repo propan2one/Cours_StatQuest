@@ -25,9 +25,12 @@ ipak <- function(pkg){
 # usage
 packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RColorBrewer",
               "lattice", "scales", "plotrix", "gridExtra", "reshape2", "tidyr", "randomForest",
-              "cowplot")
+              "cowplot", "RAM", "VennDiagram")
 ipak(packages)
 ```
+
+
+___
 
 # Base
 
@@ -134,6 +137,46 @@ Ici 10 jours :
 ```{r}
 date_manips <- c(as.Date('2018-09-26') + 0:10)
 ```
+
+## Manipuler un chaine de caractère
+
+### Coller 2 strings
+
+```{r}
+paste0(basePath, "private_AF11-I-T48_intersec_3_replicats.csv" )
+```
+
+### Compter les caractères
+
+```{r}
+nchar("private_AF11-I-T48_intersec_3_replicats.csv" )
+```
+
+## Gérer les erreurs
+
+from : http://mazamascience.com/WorkingWithData/?p=912
+
+La fonction suivante lit un fichier avec `read.table()`. Si ça échoue, par exemple lorsque le fichierest vide (généré dans un pipeline par exemple), ça va mettre une matrice vide à la place.
+
+```{r}
+
+basePath <- "/export/home/delmotte/Documents/Divoshv1_Resultats/F11_AvsM_comparaison/"
+read.file <- function (file.name) {
+  fichier <- try(read.table(file.name, header = FALSE, dec = ".", sep = "\t", stringsAsFactors=F))
+  if (class(fichier) == "try-error") {
+    cat("Caught an error during read.table(), file can be empty, using matrice.\n")
+    fichier <- data.frame(matrix(NA, nrow = 0, ncol = 6)) # problem si le fichier est vide
+  }
+  fichier
+}
+
+private_C <- read.file(paste0(basePath, "private_AF11-I-T48_intersec_3_replicats.csv"))
+private_C
+
+```
+
+
+___
 
 # Dataset : 
 ## Creation dataset : 
@@ -287,9 +330,15 @@ file[ file == "./." ] <- "ab"
 file <- gsub("./.","ab",file, fixed = TRUE)
 ```
 
+
+___
+
 # Statistiques
 
 Post très utile avec les visualisations des p-values : https://www.r-bloggers.com/add-p-values-and-significance-levels-to-ggplots/
+
+___
+
 # plot :
 
 ## Plotter uniquement un sous ensemble de données avec ggplot
@@ -489,3 +538,120 @@ do
 done
 ```
 
+
+## Venn Diagram
+
+### Version basique
+
+```{r}
+A <- 2
+B <-62
+AB <- 31
+grid.newpage()
+venn.plot <- draw.pairwise.venn(A+AB, B+AB, AB,
+                                category = c(noms_fichier_A, noms_fichier_M),
+                                fill = c("blue", "red"),
+                                scaled = FALSE)
+grid.draw(venn.plot)
+
+```
+
+### Version stylé
+Permet de visualiser la similarité entre plusieurs choses
+
+help : https://stackoverflow.com/questions/45902376/printing-venn-diagram-after-calculating-overlap
+
+```{r}
+library(RAM)
+library(VennDiagram)
+cardiome <- letters[1:10]
+superset <- letters[8:24]
+overlap <- calculate.overlap(
+x <- list("Cardiome"=cardiome, "SuperSet"=superset))
+
+venn.plot <- draw.pairwise.venn(
+    area1 = length(cardiome),
+    area2 = length(superset),
+    cross.area = length(overlap),
+    category = c("Cardiome", "Superset"),
+    fill = c("blue", "red"),
+    lty = "blank",
+    cex = 2,
+    cat.cex = 2,
+    cat.pos = c(180, 180),
+    cat.dist = 0.05,
+    cat.just = list(c(0, 1), c(1, 1))
+    )
+grid.draw(venn.plot)
+#savePlot(filename="venndiag", type="png")
+vectors <- list(Cardiome=cardiome, Superset=superset)
+group.venn(vectors=vectors, label=TRUE, 
+    fill = c("blue", "red"),
+    cat.pos = c(180, 180),
+    lab.cex=1.1)
+
+venn.diagram(x = list(
+  "Cardiome" = cardiome,
+  "SuperSet" = superset
+), "plot_venn")
+
+grid.draw(venn.plot)
+```
+
+## Tableaux mit en forme dans le code
+
+https://cran.r-project.org/web/packages/gridExtra/vignettes/tableGrob.html
+
+___
+
+# Mise en page
+
+## Référence document de sortie
+
+https://stackoverflow.com/questions/29354674/knitr-with-the-biblatex-option?rq=1
+
+## Compile le document en rmarkdown dans le chunk
+
+```{r}
+# comparaison_F11_A-M.Rmd est le nom du fichier
+rmarkdown::render("comparaison_F11_A-M.Rmd", "all") 
+```
+
+## Lancer un fichier Rmd avec des arguments
+
+### Basique
+
+Dans le terminal mettre : 
+
+```bash
+# Ligne de commande dans le terminal
+Rscript -e "rmarkdown::render('Fichier_for_Knit.Rmd', clean=TRUE)"
+```
+
+### Avec des arguments
+
+Les `""` dans devant le `rmarkdown::render` sont *obligatoirement des guillements** alors que pour les arguments (ici A, B et C) il s'agit **obligatoirement d'apostrophes simples** !
+
+
+```bash
+# Ligne de commande dans le terminal
+Rscript -e "rmarkdown::render('comparaison_F11_A-M.Rmd', params=list(A = 'private_AF11-I-T48_intersec_3_replicats.csv', B = 'private_MF11-I-T48_intersec_3_replicats.csv', C = 'AF11-I-T48_intersec_3_replicats_inter_MF11-I-T48_intersec_3_replicats.csv'))"
+```
+
+L'entête du fichier  `comparaison_F11_A-M.Rmd` étant: 
+
+```
+---
+title: "Comparaison de 2 fichiers VCFs"
+author: "Delmotte_jean"
+date: "19 septembre 2018"
+output: html_document
+params:
+  A: "A"
+  B: "B"
+  C: "C"
+---
+
+```
+
+De plus dans le fichier, les arguments sont appelé pour A /B et C respectivement `params$A` / `params$C` / `params$C`
