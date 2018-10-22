@@ -7,6 +7,15 @@ output: html_document
 A allé voir, ce site semple très complet
 https://adv-r.hadley.nz/quasiquotation.html
 
+
+- [#Package](#package)
+- [#La base](#la-base)
+- [#Dataset](#dataset)
+- [#Statistiques](#statistiques)
+- [#plot](#plot)
+- [#Rmarkdown](#rmarkdown)
+- [#Mise en page](#mise-en-page)
+
 # Package
 
 la fonction ci dessous va installé les packages d'un vecteur (ici "packages") si il ne sont pas installé sur l'ordinateur, et si ils le sont, le package va les charger
@@ -32,13 +41,23 @@ ipak(packages)
 
 ___
 
-# Base
+# La base
 
-## Type d'objets
+## Type d'objets sur R
+
+### Objet simple
+
+Il s'agit d'une variable qui code pour 1 seul chose
+
+```{r}
+Truc_simple <- 486
+Truc_simple
+```
+
 
 ### Vecteurs
 
-Dans R un vecteur une **liste d'éléments** c'est l'un des éléments de base du language.
+Dans R un vecteur une **liste d'éléments** c'est l'un des éléments de base du language. Il est en **une dimension**.
 ```{r}
 # Vecteur numérique
 vecteur <- c(1,25,34,58)
@@ -54,7 +73,7 @@ vec_vide
 
 ### Matrices
 
-Les matrices sont crée à partir de vecteurs et sont à deux dimensions, c'est en gros un vecteur 2D. Tous les éléments d'une matrice sont du même type.
+Les matrices sont crée à partir de vecteurs et sont à **deux dimensions**, c'est en gros un vecteur 2D. Tous les éléments d'une matrice sont du même type.
 
 De plus, les numéros de lignes et de colonnes sont représentés par des chiffres entre crochets : le chiffre **avant la virgule** indique le **numéro de ligne**, alors que le chiffre **après** représente **les colonnes**. Un moyen mémo pour éviter à tester h24 les 2 :
 
@@ -91,11 +110,104 @@ Il faut s'imaginer ici, que le premier étage du cube est `,,1`, le deuxième `,
 
 Remarque en pratique les arrays sont pas vraiment utilisé.
 
-## e
+### Les Dataframes
+
+Les Dataframes sont une série de vecteurs colonnes, ils sont créer e à partir de plusieurs vecteurs ou encore de matrices. Les **colonnes sont des variables** systématiquement . Une colonnes porte des noms en `X` par defaut, ou le noms du vecteurs qui deviendra la colonne. Le type de variable reste le même systématiquement dans une colonne (une colonne contient que des numériques, que des chaînes de caractère par exemple). 
+
+*Remarque* : dans le cas de chaîne de caractère, les guillemets sont enlevé car par defaut le contenue de la colonne est considérer comme des facteurs.
 
 ```{r}
-
+donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15))
+donnees
 ```
+
+Voir cette [partie](#creation-dataset) pour la création de dataframe plus précise
+
+### Les listes
+
+Les listes (séries de données) sont créées à partir d'objet de tout types : simples, vecteurs, matrices, arrays, dataframes etc.. Dans les liste chaque compartiment est appelé par un **numéro entre double crochet**.
+
+
+```{r}
+# Creation liste simple avec les éléments vue précédement
+liste_1 <- list(donnees, matrice, vecteur)
+liste_1
+
+# Creation liste vide de taille non nulle
+Liste_vide <- vector("list",1)
+Liste_vide
+```
+
+### Les facteurs
+
+Le facteur est un type de qualité qui ce déplace en velo et distribue le courri.. Non c'est un type de **vecteur adapté au variable qualitatives** Il est créé à partir d'un vecteur de caractère.
+
+```{r}
+# Creation d'un vecteur de caractère
+distribution_courrier <- rep(c("rapide", "moyen", "fort"), c(1,2,3))
+distribution_courrier
+# Creation d'un facteur a partir du vecteur - 1
+laposte <- factor(distribution_courrier)
+laposte
+```
+
+- On peut observer la différence entre le vecteur `distribution_courrier` et le facteur `laposte` : pas de guillemets et presence de **Levels**.
+
+La fonction `factor()` considère les caractères comme les **classes d'une variable qualitative**. Dans "Levels" elle indique les différentes classes (par ordre alphabétique lorsqu'elle est appliqué sur un vecteur de caractères). Elle est très pratique pour la contingence (i.e. l'étude des effectifs dans les différentes classes d'une variable qualitative).
+
+L'une des particularité des facteurs est que **les éléments sont enregistré en temps que chiffres** de sorte que un chiffre correspond à un niveau (i.e. "Levels"). Il est donc possible de créer un facteur à l'aide des arments `levels` et `labels` :
+
+```{r}
+# Creation d'un facteur en utilisant les levels et les labels - 2
+distribution_courrier <- factor(c(5,0,10,5,5,0), levels = c(0,5,10), labels = c("rapide", "moyen", "fort"))
+distribution_courrier
+```
+
+- On peut observer que pour `distribution_courrier` les "Levels" qui indique les différentes classe, sont affichés par ordre d'écriture dans labels et non plus par ordre alphabétique comme précédemment.
+
+Pour finir on peut ordonner les variables (ce qui en fait des variable qualitatives ordinales) en ajoutant `ordered = TRUE`.
+
+```{r}
+# Creation d'un facteur en utilisant les levels et les labels - 2
+distribution_courrier <- factor(c(5,0,10,5,5,0), levels = c(0,5,10), labels = c("rapide", "moyen", "fort"), ordered = TRUE)
+distribution_courrier
+```
+
+- On peut observer que pour `distribution_courrier` les "Levels" qui indique les différentes classe, sont affichés avec un ordre signalé par les chevrons `<`.
+
+### Les Tables
+
+Une table correspond à un **tableau de contingence** (comptage d'effectifs). Elle est créée à partir de facteurs, mais aussi de vecteurs ou de matrices de caractère (Dans ce cas les **veteurs** doivent impérativement avoir **le même nombre d'éléments**). Les lignes  et les colonnes prennent le nom de chaque classe (facteur) ou de chaque caractère (vecteur ou matrices). Elle peut être de dimension supérieur à 2 (plus de 2 facteurs ou vecteurs utilisé).
+
+```{r}
+# Creation d'une table à partir d'un facteur
+distribution_courrier <- factor(c(5,0,10,5,5,0,0,0,5,10,0,10,5,10,10,10), levels = c(0,5,10), labels = c("rapide", "moyen", "fort"), ordered = TRUE)
+distribution_courrier
+tableau_1 <- table(distribution_courrier)
+tableau_1
+
+# Creation d'une table à partir de 2 vecteurs
+distribution_courrier <- rep(c("rapide", "moyen", "fort"), c(1,2,3)) # 6 elements
+noms_facteurs <- c("Pierre", "Paul", "Jacques","Pierre", "Paul", "Jacques") # 6 elements
+tableau_2 <- table(distribution_courrier, noms_facteurs)
+tableau_2
+
+# Creation d'une table à l'aide d'un dataframe
+laposte <- data.frame(distribution_courrier, noms_facteurs)
+laposte
+tableau_3 <- table(laposte)
+# Les 3 ligne font la meme chose
+tableau_3
+xtabs(~ distribution_courrier + noms_facteurs,laposte)
+xtabs(~.,laposte)
+
+# Creation d'une table vide (pour la remplir au fur et a mesure)
+tableau_vide <- matrix(nrow = 2,ncol = 4)
+tableau_vide <- as.table(tableau_vide)
+tableau_vide
+```
+
+
 
 ## Génération de données avec runif()
 Génère un nombre défini de données aléatoire
@@ -172,17 +284,16 @@ read.file <- function (file.name) {
 
 private_C <- read.file(paste0(basePath, "private_AF11-I-T48_intersec_3_replicats.csv"))
 private_C
-
 ```
 
 
 ___
 
-# Dataset : 
+# Dataset
 ## Creation dataset : 
-### Dataset avec des donnnées spécifié
+### Création dataframe à partir d'une série de vecteurs
 ```{r}
-donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15))
+donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15), D=c("rouge", "jaune"))
 ```
 
 ### Créer un dataframe avec le bon nombre de colonne et que celle ci soit vide
@@ -305,10 +416,10 @@ Fichier_A[Fichier_A[, "pos"] == 42530,]
 
 ### Afficher la plus petite valeurs d'un dataframe
 
-# Column name with minimum value
+## Column name with minimum value
 names(df)[which.min(apply(df,MARGIN=2,min))]
 
-# Row name with minimum value
+## Row name with minimum value
 rownames(df)[which.min(apply(df,MARGIN=1,min))]
 
 ### Renvoyer le noms de la colonne du max dans une ligne
@@ -339,7 +450,7 @@ Post très utile avec les visualisations des p-values : https://www.r-bloggers.c
 
 ___
 
-# plot :
+# plot
 
 ## Plotter uniquement un sous ensemble de données avec ggplot
 
@@ -523,6 +634,8 @@ https://bookdown.org/yihui/rmarkdown/html-document.html#section-numbering
 
 http://larmarange.github.io/analyse-R/rmarkdown-les-rapports-automatises.html
 
+Stackoverflow how to make link in rmarkdown file : https://stackoverflow.com/questions/33913780/internal-links-in-rmarkdown-dont-work
+
 ## loop sur des fichier Rmarkdown avec des arguments et des output file spécifique
 
 
@@ -553,7 +666,6 @@ venn.plot <- draw.pairwise.venn(A+AB, B+AB, AB,
                                 fill = c("blue", "red"),
                                 scaled = FALSE)
 grid.draw(venn.plot)
-
 ```
 
 ### Version stylé
