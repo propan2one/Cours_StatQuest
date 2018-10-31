@@ -121,7 +121,16 @@ donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(
 donnees
 ```
 
-Voir cette [partie](#creation-dataset) pour la création de dataframe plus précise
+#### Créer d'un dataframe vide de dimension spécifique
+
+Ici un dataframe de 4 lignes sur 5 colonnes
+
+```{r}
+Empty_dataframe <- data.frame(matrix(NA, nrow = 4, ncol = 5))
+str(Empty_dataframe)
+```
+
+*remarque* : on peut utilisé un `length(date_manips)` au lieu d'un entier pour facilité la création [voir](###Dataframe-pour-le-suivie-de-mortalité) 
 
 ### Les listes
 
@@ -290,22 +299,34 @@ private_C
 ___
 
 # Dataset
-## Creation dataset : 
-### Création dataframe à partir d'une série de vecteurs
+
+Pour créer/construire un dataset, on peut faire comme indiqué pour les [Dataframes](#les-dataframes) ou alors on peut les importer.
+
+## Creation par importation de fichier
+
+Le logiciel R permet d'importer des données existant dans différents formats comme les CSV, les TXT etc.. Il est conseillé de d'avoir les **variables en colonnes** et les **individues sur les lignes**.
+
+Remarque sur les fichier en excel : il faut utiliser les chiffres décimaux avec un **point** et pas un virgule.
+
+### Importation de données
+
+Pour créer un dataframe appelé `df` à partir du fichier `donneAimporter.txt`
+
 ```{r}
-donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15), D=c("rouge", "jaune"))
+df <- read.table("~/Document/exemples/donneAimporter.txt", header = FALSE, dec = ".", sep = "\t", stringsAsFactors=F)
 ```
 
-### Créer un dataframe avec le bon nombre de colonne et que celle ci soit vide
+On remarque bien que :
+- Le fichier à récupérer est un chaine de caractère contenant le chemin `~/Document/exemples/` et le nom du fichier `donneAimporter.txt`. 
+- Comme il s'agit d'une chaine de caractère on peut facilement appliquer les fonctions/méthodes qui leurs sont associés. Par exemple la fonction `paste()` qui permet de coller 2 chaines de caractère, ce qui si l'on stocke le chemin dans un variable permet d'importer plein de fichiers plus facilement.
 
-Ici un dataframe de 4 lignes sur 5 colonnes
+Petit point pour les gens utilisant **Windows** le chemin est noté différement :
+- Il y a un `C:` en amont
+- Les slashs sont dans l'autre sens, au lieu d'être comme ça `/` ils sont `\`(touche -> Alt Gr + 8)
 
-```{r}
-Empty_dataframe <- data.frame(matrix(NA, nrow = 4, ncol = 5))
-str(Empty_dataframe)
-```
 
-*remarque* : on peut utilisé un `length(date_manips)` au lieu d'un entier pour facilité la création [voir](###Dataframe-pour-le-suivie-de-mortalité) 
+
+
 
 ### Dataframe pour le suivie de mortalité
 
@@ -448,9 +469,133 @@ ___
 
 Post très utile avec les visualisations des p-values : https://www.r-bloggers.com/add-p-values-and-significance-levels-to-ggplots/
 
+## Statistique descriptives
+
+p53
+
+### Moyenne
+
+### Median
+
+### Variance
+
+### Co-variance
 ___
 
 # plot
+
+p60
+
+## Stripchart
+### Intéret
+- Le stripchart est un graphique qui permet de montré **chaque point individuel de données**, et ce avec plusieurs échantillons par exemple (chacun sur une ligne). ce type de graphique est dit **exploratoire**, Il  permet  en  particulier  de  **déceler  les  erreurs  de saisie**  dans  les  fichiers  (les  points  aberrants  du  type  "virgule  oubliée"  sautent  aux  yeux). Surtout,  ce  type  de  figure  a  le  grand  mérite  de  vous  obliger  à **regarder  vos  données individuelles**  et  donc  à  ne  jamais  oublier  leur **variabilité**.
+
+- Tips : lorsqu'il y a beaucoup de données, il vaut mieux  utiliser  des  symboles  "ouverts".  Leur  empilement  noircit  alors  le  fond  graduellement, en  vous  donnant une  bonne  idée  de  la densité  des  individus  selon  la  zone  du  graphe, autrement dit vous accédez visuellement à la notion statistique de **densité de probabilité**.
+
+### Script
+
+#### Natif
+
+Notont l'utilisation de `vertical=TRUE` pour mettre orienté les bars et `method="jitter"` pour ne pas caché les valeurs identique les unes sous les autres.
+
+```{r}
+donnees <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
+donnees
+
+stripchart(gene_un ~ souris, data = donnees,
+           main = "stripchart de l'expression génique souris wt contre les souris mutante",
+           xlab = "touris", ylab = "Gene expression",
+           col = c("red", "green"),
+           vertical=TRUE)
+```
+
+
+#### Avec ggplot2
+
+Pour plus d'information allé voir : http://www.sthda.com/french/wiki/ggplot2-stripchart-jitter-guide-de-demarrage-rapide-logiciel-r-et-visualisation-de-donnees (mean, legende etc..)
+
+```{r}
+donnees <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
+donnees
+donnees$souris <- as.factor(donnees$souris)
+
+library(ggplot2)
+# Stripcharts basiques
+ggplot(donnees, aes(x=souris, y=gene_un)) + 
+  geom_jitter(position=position_jitter(0)) # permet de séparer sur le coté, 0 pour une colonne et >0 pour plus distribué les points
+```
+
+
+## Boxplot
+
+## Histogramme
+
+## Barplot
+
+## Mos
+
+## Venn Diagram
+
+### Version basique
+
+```{r}
+A <- 2
+B <-62
+AB <- 31
+grid.newpage()
+venn.plot <- draw.pairwise.venn(A+AB, B+AB, AB,
+                                category = c(noms_fichier_A, noms_fichier_M),
+                                fill = c("blue", "red"),
+                                scaled = FALSE)
+grid.draw(venn.plot)
+```
+
+### Version stylé
+Permet de visualiser la similarité entre plusieurs choses
+
+help : https://stackoverflow.com/questions/45902376/printing-venn-diagram-after-calculating-overlap
+
+```{r}
+library(RAM)
+library(VennDiagram)
+cardiome <- letters[1:10]
+superset <- letters[8:24]
+overlap <- calculate.overlap(
+x <- list("Cardiome"=cardiome, "SuperSet"=superset))
+
+venn.plot <- draw.pairwise.venn(
+    area1 = length(cardiome),
+    area2 = length(superset),
+    cross.area = length(overlap),
+    category = c("Cardiome", "Superset"),
+    fill = c("blue", "red"),
+    lty = "blank",
+    cex = 2,
+    cat.cex = 2,
+    cat.pos = c(180, 180),
+    cat.dist = 0.05,
+    cat.just = list(c(0, 1), c(1, 1))
+    )
+grid.draw(venn.plot)
+#savePlot(filename="venndiag", type="png")
+vectors <- list(Cardiome=cardiome, Superset=superset)
+group.venn(vectors=vectors, label=TRUE, 
+    fill = c("blue", "red"),
+    cat.pos = c(180, 180),
+    lab.cex=1.1)
+
+venn.diagram(x = list(
+  "Cardiome" = cardiome,
+  "SuperSet" = superset
+), "plot_venn")
+
+grid.draw(venn.plot)
+```
+
+
+## Manathan plot 
+http://www.gettinggeneticsdone.com/2014/05/qqman-r-package-for-qq-and-manhattan-plots-for-gwas-results.html
+
 
 ## Plotter uniquement un sous ensemble de données avec ggplot
 
@@ -497,47 +642,6 @@ difference_polym_filtred_Atl <- ggplot(subset(difference_filtration, grepl("A",d
   xlab("Sample") + 
   ylab("Total of polymorphisms")
 ```
-
-## Stripchart
-### Intéret
-- Le stripchart est un graphique qui permet de montré **chaque point individuel de données**, et ce avec plusieurs échantillons par exemple (chacun sur une ligne). ce type de graphique est dit **exploratoire**, Il  permet  en  particulier  de  **déceler  les  erreurs  de saisie**  dans  les  fichiers  (les  points  aberrants  du  type  "virgule  oubliée"  sautent  aux  yeux). Surtout,  ce  type  de  figure  a  le  grand  mérite  de  vous  obliger  à **regarder  vos  données individuelles**  et  donc  à  ne  jamais  oublier  leur **variabilité**.
-
-- Tips : lorsqu'il y a beaucoup de données, il vaut mieux  utiliser  des  symboles  "ouverts".  Leur  empilement  noircit  alors  le  fond  graduellement, en  vous  donnant une  bonne  idée  de  la densité  des  individus  selon  la  zone  du  graphe, autrement dit vous accédez visuellement à la notion statistique de **densité de probabilité**.
-
-### Script
-
-#### Natif
-
-Notont l'utilisation de `vertical=TRUE` pour mettre orienté les bars et `method="jitter"` pour ne pas caché les valeurs identique les unes sous les autres.
-
-```{r}
-donnees <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
-donnees
-
-stripchart(gene_un ~ souris, data = donnees,
-           main = "stripchart de l'expression génique souris wt contre les souris mutante",
-           xlab = "touris", ylab = "Gene expression",
-           col = c("red", "green"),
-           vertical=TRUE)
-```
-
-
-#### Avec ggplot2
-
-Pour plus d'information allé voir : http://www.sthda.com/french/wiki/ggplot2-stripchart-jitter-guide-de-demarrage-rapide-logiciel-r-et-visualisation-de-donnees (mean, legende etc..)
-
-```{r}
-donnees <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
-donnees
-donnees$souris <- as.factor(donnees$souris)
-
-library(ggplot2)
-# Stripcharts basiques
-ggplot(donnees, aes(x=souris, y=gene_un)) + 
-  geom_jitter(position=position_jitter(0)) # permet de séparer sur le coté, 0 pour une colonne et >0 pour plus distribué les points
-```
-
-
 ## Lignes sur un plot
 
 ### Intéret
@@ -578,9 +682,6 @@ Reorder des colonnes dans un dataframe, ici on met la 12eme colonne du dataframe
 ```{r}
 suivie_Morta <- suivie_Morta[,c(12,1:11)]
 ```
-
-## Manathan plot 
-http://www.gettinggeneticsdone.com/2014/05/qqman-r-package-for-qq-and-manhattan-plots-for-gwas-results.html
 
 ## Multiple plot 
 
@@ -649,65 +750,6 @@ do
     #Rscript -e "rmarkdown::render('~/Documents/divohsv1/analyse_fichier_pysamstats.Rmd', params=list(${params}))"
     Rscript -e "rmarkdown::render('~/Documents/divohsv1/analyse_fichier_pysamstats.Rmd', params=list(${params}),output_file = '${expe##*/}.html', output_dir = '/home/jean/Documents/resultats_pysamstats/')"
 done
-```
-
-
-## Venn Diagram
-
-### Version basique
-
-```{r}
-A <- 2
-B <-62
-AB <- 31
-grid.newpage()
-venn.plot <- draw.pairwise.venn(A+AB, B+AB, AB,
-                                category = c(noms_fichier_A, noms_fichier_M),
-                                fill = c("blue", "red"),
-                                scaled = FALSE)
-grid.draw(venn.plot)
-```
-
-### Version stylé
-Permet de visualiser la similarité entre plusieurs choses
-
-help : https://stackoverflow.com/questions/45902376/printing-venn-diagram-after-calculating-overlap
-
-```{r}
-library(RAM)
-library(VennDiagram)
-cardiome <- letters[1:10]
-superset <- letters[8:24]
-overlap <- calculate.overlap(
-x <- list("Cardiome"=cardiome, "SuperSet"=superset))
-
-venn.plot <- draw.pairwise.venn(
-    area1 = length(cardiome),
-    area2 = length(superset),
-    cross.area = length(overlap),
-    category = c("Cardiome", "Superset"),
-    fill = c("blue", "red"),
-    lty = "blank",
-    cex = 2,
-    cat.cex = 2,
-    cat.pos = c(180, 180),
-    cat.dist = 0.05,
-    cat.just = list(c(0, 1), c(1, 1))
-    )
-grid.draw(venn.plot)
-#savePlot(filename="venndiag", type="png")
-vectors <- list(Cardiome=cardiome, Superset=superset)
-group.venn(vectors=vectors, label=TRUE, 
-    fill = c("blue", "red"),
-    cat.pos = c(180, 180),
-    lab.cex=1.1)
-
-venn.diagram(x = list(
-  "Cardiome" = cardiome,
-  "SuperSet" = superset
-), "plot_venn")
-
-grid.draw(venn.plot)
 ```
 
 ## Tableaux mit en forme dans le code
