@@ -34,7 +34,7 @@ ipak <- function(pkg){
 # usage
 packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RColorBrewer",
               "lattice", "scales", "plotrix", "gridExtra", "reshape2", "tidyr", "randomForest",
-              "cowplot", "RAM", "VennDiagram")
+              "cowplot", "RAM", "VennDiagram", "datasets")
 ipak(packages)
 ```
 
@@ -49,7 +49,7 @@ ___
 
 Il s'agit d'une variable qui code pour 1 seul chose
 
-```{r}
+```{r simple}
 Truc_simple <- 486
 Truc_simple
 ```
@@ -58,12 +58,14 @@ Truc_simple
 ### Vecteurs
 
 Dans R un vecteur une **liste d'éléments** c'est l'un des éléments de base du language. Il est en **une dimension**.
-```{r}
+```{r vecteur}
 # Vecteur numérique
 vecteur <- c(1,25,34,58)
+vecteur
 
 # Vecteur caractères
 drapeau <- c("noir", "jaune", "vert")
+drapeau
 
 # Vecteur vide avec la fonction vector, ici 5 fois des éléments "character" vide
 vec_vide <- vector("character", 5)
@@ -79,18 +81,22 @@ De plus, les numéros de lignes et de colonnes sont représentés par des chiffr
 
 - "lignes" il y a moins de lettre donc c'est avant la virgule, et "colonne" il y a plus de lettre donc c'est après
 
-```{r}
+```{r matrices}
 # Creation matrice 1, ncol précise le nombre de colonne
 matrice <-matrix(c(1:15), ncol=3)
+matrice
 
 # Creation matrice 2
 matrice <-matrix(c(1:15), 3)
+matrice
 
 # Creation matrice 3, le vecteur c(1:15)*100 est directement introduit dans la matrice
 matrice <- matrix((1:15)*100, nrow = 3, byrow = TRUE)
+matrice
 
 # Creation matrice vide
-matrice <- matrix(NA, nrow = 4, ncol = 5)
+matrice_vide <- matrix(NA, nrow = 4, ncol = 5)
+matrice_vide
 ```
 
 Remarque : L'utilisation de matrice [vide](###Créer-un-dataframe-avec-le-bon-nombre-de-colonne-et-que-celle-ci-soit-vide)peut être intéressante quand on utilise un script R dans un pipeline si on veut importer des données d'un fichier mais que celui-ci est vide, ça permet d'éviter de faire planter le pipeline si l'erreur est gérer, voir plus loin.
@@ -101,7 +107,7 @@ Les arrays sont crée à partir de vecteurs et sont à $n$ dimensions. La numér
 
 Ici nous allons créer un tableau à 3 lignes, 5 colonnes et 2 niveaux par ordre alphabétique
 
-```{r}
+```{r arrays}
 array3d <- array(letters, dim =c(3,5,2))
 array3d
 ```
@@ -116,7 +122,7 @@ Les Dataframes sont une série de vecteurs colonnes, ils sont créer e à partir
 
 *Remarque* : dans le cas de chaîne de caractère, les guillemets sont enlevé car par defaut le contenue de la colonne est considérer comme des facteurs.
 
-```{r}
+```{r dataframes}
 donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15))
 donnees
 ```
@@ -125,7 +131,7 @@ donnees
 
 Ici un dataframe de 4 lignes sur 5 colonnes
 
-```{r}
+```{r dataframe_empty}
 Empty_dataframe <- data.frame(matrix(NA, nrow = 4, ncol = 5))
 str(Empty_dataframe)
 ```
@@ -137,21 +143,21 @@ str(Empty_dataframe)
 Les listes (séries de données) sont créées à partir d'objet de tout types : simples, vecteurs, matrices, arrays, dataframes etc.. Dans les liste chaque compartiment est appelé par un **numéro entre double crochet**.
 
 
-```{r}
+```{r listes}
 # Creation liste simple avec les éléments vue précédement
 liste_1 <- list(donnees, matrice, vecteur)
 liste_1
 
 # Creation liste vide de taille non nulle
-Liste_vide <- vector("list",1)
-Liste_vide
+liste_vide <- vector("list",1)
+liste_vide
 ```
 
 ### Les facteurs
 
 Le facteur est un type de qualité qui ce déplace en velo et distribue le courri.. Non c'est un type de **vecteur adapté au variable qualitatives** Il est créé à partir d'un vecteur de caractère.
 
-```{r}
+```{r facteur_1}
 # Creation d'un vecteur de caractère
 distribution_courrier <- rep(c("rapide", "moyen", "fort"), c(1,2,3))
 distribution_courrier
@@ -166,7 +172,7 @@ La fonction `factor()` considère les caractères comme les **classes d'une vari
 
 L'une des particularité des facteurs est que **les éléments sont enregistré en temps que chiffres** de sorte que un chiffre correspond à un niveau (i.e. "Levels"). Il est donc possible de créer un facteur à l'aide des arments `levels` et `labels` :
 
-```{r}
+```{r facteur_2}
 # Creation d'un facteur en utilisant les levels et les labels - 2
 distribution_courrier <- factor(c(5,0,10,5,5,0), levels = c(0,5,10), labels = c("rapide", "moyen", "fort"))
 distribution_courrier
@@ -176,8 +182,8 @@ distribution_courrier
 
 Pour finir on peut ordonner les variables (ce qui en fait des variable qualitatives ordinales) en ajoutant `ordered = TRUE`.
 
-```{r}
-# Creation d'un facteur en utilisant les levels et les labels - 2
+```{r facteur_3}
+# Creation d'un facteur en utilisant les levels et les labels - 3
 distribution_courrier <- factor(c(5,0,10,5,5,0), levels = c(0,5,10), labels = c("rapide", "moyen", "fort"), ordered = TRUE)
 distribution_courrier
 ```
@@ -188,7 +194,7 @@ distribution_courrier
 
 Une table correspond à un **tableau de contingence** (comptage d'effectifs). Elle est créée à partir de facteurs, mais aussi de vecteurs ou de matrices de caractère (Dans ce cas les **veteurs** doivent impérativement avoir **le même nombre d'éléments**). Les lignes  et les colonnes prennent le nom de chaque classe (facteur) ou de chaque caractère (vecteur ou matrices). Elle peut être de dimension supérieur à 2 (plus de 2 facteurs ou vecteurs utilisé).
 
-```{r}
+```{r tables}
 # Creation d'une table à partir d'un facteur
 distribution_courrier <- factor(c(5,0,10,5,5,0,0,0,5,10,0,10,5,10,10,10), levels = c(0,5,10), labels = c("rapide", "moyen", "fort"), ordered = TRUE)
 distribution_courrier
@@ -205,8 +211,8 @@ tableau_2
 laposte <- data.frame(distribution_courrier, noms_facteurs)
 laposte
 tableau_3 <- table(laposte)
-# Les 3 ligne font la meme chose
 tableau_3
+# Les 3 ligne font la meme chose
 xtabs(~ distribution_courrier + noms_facteurs,laposte)
 xtabs(~.,laposte)
 
@@ -215,8 +221,6 @@ tableau_vide <- matrix(nrow = 2,ncol = 4)
 tableau_vide <- as.table(tableau_vide)
 tableau_vide
 ```
-
-
 
 ## Génération de données avec runif()
 Génère un nombre défini de données aléatoire
@@ -229,18 +233,7 @@ min(Alea)
 max(Alea)
 ```
 
-## Répéter une chaine de caractère
 
-Facile
-```{r}
-rep("NSI", 3)
-```
-
-Plus Funkie :
-
-```{r}
-c("Matricule", "Donneuse_C", "Donneuse_T", "Donneuse_LT", "Donneuse_B" , rep(c(rep("NSI", 3), rep("F11", 3), rep("F32", 3)), 4))
-```
 
 ## Ecrire un fichier CSV à partir d'un dataframe
 
@@ -258,21 +251,6 @@ Ici 10 jours :
 ```{r}
 date_manips <- c(as.Date('2018-09-26') + 0:10)
 ```
-
-## Manipuler un chaine de caractère
-
-### Coller 2 strings
-
-```{r}
-paste0(basePath, "private_AF11-I-T48_intersec_3_replicats.csv" )
-```
-
-### Compter les caractères
-
-```{r}
-nchar("private_AF11-I-T48_intersec_3_replicats.csv" )
-```
-
 ## Gérer les erreurs
 
 from : http://mazamascience.com/WorkingWithData/?p=912
@@ -308,25 +286,53 @@ Le logiciel R permet d'importer des données existant dans différents formats c
 
 Remarque sur les fichier en excel : il faut utiliser les chiffres décimaux avec un **point** et pas un virgule.
 
-### Importation de données
+### Importation de tableaux
 
 Pour créer un dataframe appelé `df` à partir du fichier `donneAimporter.txt`
 
-```{r}
+```{r importation_dataframe}
 df <- read.table("~/Document/exemples/donneAimporter.txt", header = FALSE, dec = ".", sep = "\t", stringsAsFactors=F)
+df
 ```
 
 On remarque bien que :
 - Le fichier à récupérer est un chaine de caractère contenant le chemin `~/Document/exemples/` et le nom du fichier `donneAimporter.txt`. 
 - Comme il s'agit d'une chaine de caractère on peut facilement appliquer les fonctions/méthodes qui leurs sont associés. Par exemple la fonction `paste()` qui permet de coller 2 chaines de caractère, ce qui si l'on stocke le chemin dans un variable permet d'importer plein de fichiers plus facilement.
+- L'argument `stringsAsFactors` permet de préciser que les chaines de caractères du tableau ne doivent pas être importer au format "factor" (qui est par défaut).
 
 Petit point pour les gens utilisant **Windows** le chemin est noté différement :
 - Il y a un `C:` en amont
 - Les slashs sont dans l'autre sens, au lieu d'être comme ça `/` ils sont `\`(touche -> Alt Gr + 8)
 
+Il est possible d'importer un nombre de ligne défini :
+- Soit avec l'argument `skip` qui permet de préciser le nombre de lignes à **éliminer**.
+- Soit avec l'argument `nrows` qui permet de préciser le nombre de lignes à **importer**.
+Importer un nombre de ligne défini peut être utile lorsque l'on souhaite faire de la mise au point d'un gros dataframe pour le réduire.
 
+### Importation de vecteur
 
+On peut créer un objet vecteur de caractères appelé `vect_import` à partir d'un fichier texte.
 
+```{r scan}
+vect_import <- scan("~/Document/exemples/donneAimporter.txt", what = "")
+vect_import
+```
+
+Remarque : 
+- La fonction `scan()` import par défaut des chiffres, or si il y a des caractères il faut ajouter l'argument `what()=""`.
+- On peut aussi importer des [listes](#les-listes) avec `scan()`.
+- L'importation de vecteur n'est pas très commune contrairement aux dataframes.
+
+## Importation de dataset présent dans des packages
+
+Il existe des packages ou sont regrouper des données classiquement utiliser dans les exercices / cours de datasciences/bio-informatique.
+
+```{r iris}
+library(datasets)
+iris
+```
+
+Ici il s'agit du package `datasets` on l'on retrouve le jeu de donnée "iris".
 
 ### Dataframe pour le suivie de mortalité
 
@@ -464,6 +470,175 @@ file <- gsub("./.","ab",file, fixed = TRUE)
 
 
 ___
+
+
+# Data-mining
+
+Le terme de *data-mining* désigne l'exploration des données, il s'agit ici d'analyser les données de différentes manières, en les transofrmants, en faisant des sous ensembles, en établissant des liens etc..
+La première étape du data-mining est donc la description d'un objet de données.
+
+## Description d'un objet de données
+
+Un objet qui contient des données est caractériser par : 
+- Le nombre de d'éléments qui sont présent
+- La nature de ces éléments
+
+### Taille d'un objet
+
+Pour connaitre la taille d'un objet on utilise la fonction `length()`
+
+```{r taille}
+length(Truc_simple)
+length(vecteur) # nombres d'élément du vecteur
+length(donnees) # nombres de colonnes
+length(matrice) # nombres d'élément présent dans la matrice
+length(liste_1) # nombres de compartiment dans la liste
+length(tableau_3) # nombres d'élément présent dans la table
+```
+
+### Nature de l'objet
+
+Pour connaitre quel est la nature d'un objet, on peut utiliser la fonction `class()` ou `mode()`.
+
+```{r nature}
+class(Truc_simple)
+class(vecteur)
+class(donnees)
+class(donnees$A) #Permet de connaitre la nature des éléménts d'une colonne du dataframe
+class(matrice)
+class(liste_1)
+class(tableau_3)
+```
+
+## Analyse d'un objet de données
+
+### Resumé des données
+
+Pour avoir une idée de la distribution des données on utilise la fonction `summary()`
+
+```{r resume}
+summary(Truc_simple)
+summary(vecteur) # décrit les éléments du vecteur
+summary(donnees) # décrit les éléments de chaque colonnes du dataframe
+summary(matrice) # décrit les éléments de chaque colonnes de la matrice
+summary(liste_1) # décrit les compartiments dans la liste
+summary(tableau_3) # nombres d'élément présent dans la table
+```
+
+### Nombre de lignes
+
+Pour un dataframe ou une matrice pour afficher le **nombre de lignes** présent on utilise la fonction `nrow()`
+
+```{r}
+nrow(donnees)
+nrow(matrice)
+```
+
+### Nombre de colonnes
+
+Pour un dataframe ou une matrice pour afficher le **nombre de colonnes** présent on utilise la fonction `ncol()`
+
+```{r}
+ncol(donnees)
+ncol(matrice)
+```
+
+## Modification des données
+
+Après l'importation des données il est souvent necessaire de les transformer. Bien souvvent lorsqu'un objet est transformer il est necessaire d'assigner la modification au nom de l'objet pour le conserver.
+
+```{r modif_datas}
+donnees$A
+# Si on modifie un objet
+donnees$A*2
+# Si on regarde l'objet
+donnees$A # pas de modification
+# En l'assignant maitenant à lui même
+donnees$A <- donnees$A*2
+donnees$A
+```
+
+### Operation sur un vecteur
+
+On peut faire des opérations arithmétique (additionner, multiplier..) sur les éléments d'un vecteur par un nombre/variables etc..
+
+```{r}
+donnees$A*2
+donnees$A/2
+```
+
+### Manipuler un chaine de caractère
+
+La gestion des chaines de caractères est très utile pour manipuler le noms de variable (en sélectionnant des éléments dedants) ou encore lors de l'écriture de fichier de sortie (coller le chemin et le nom de fichier). Ou encore pour nommer les individue d'un dataframe.
+
+**Remarque : toute les opérations qui suivent sont suceptible d'être utiliser sur une colonne d'un dataframe** et ça c'est plutôt puissant
+
+#### Répéter une chaine de caractère
+
+Ici on répète 3 fois la même chaine de caractère dans un vecteur (non assigné)
+```{r}
+rep("Penny", 3)
+```
+
+On peut aussi faire de répétition dans des répétitions.
+
+```{r}
+c("Matricule", "Donneuse_C", "Donneuse_T", "Donneuse_LT", "Donneuse_B" , rep(c(rep("NSI", 3), rep("F11", 3), rep("F32", 3)), 4))
+```
+
+Les répétitions sont extremement utile pour créer des [dataframes](#les-dataframes). On répète des choses dans différents vecteur que l'on assemble
+
+#### Coller deux chaines de caractère
+
+Très utile pour gérer les chemins des fichiers notamment ou l'écriture du nom de fichier
+
+```{r past_string}
+basePath <- "~/Documents/"
+noms_long <- paste0(basePath, "private_AF11-I-T48_intersec_3_replicats.csv")
+noms_long
+```
+
+#### Compter les caractères d'une chaine de caractère
+
+Très utile pour gérer les noms de variable ou de fichiers
+```{r nbre_string}
+nchar("private_AF11-I-T48_intersec_3_replicats.csv")
+nchar(noms_long)
+```
+
+
+#### Extraire des caractères d'une chaine de caractère
+
+On peut extraire un partie plus petite d'un chaine de caractère de deux manières différentes
+
+##### En fonction de la position
+
+Ici on va récupérer "AF11-I-T48" dans l'exemple "private_AF11-I-T48_intersec_3_replicats.csv". La partie ce trouve entre le caractère 21 et 30 de la chaine de caractère
+
+```{r subset_string}
+noms_long <- "~/Documents/private_AF11-I-T48_intersec_3_replicats.csv"
+substr(noms_long, 21, 30)
+```
+
+##### En fonction d'un motif
+
+Il s'agit ici de maitriser les expressions régulières
+
+```{r}
+noms_long <- "~/Documents/private_AF11-I-T48_intersec_3_replicats.csv"
+all_data$condition <- as.factor(sub("\\.", "", all_data$condition)) # remove a dot without using pattern
+
+```
+
+#### Remplacer un caractères d'une chaine de caractère par autre chose
+
+Ici on va supprimer le "AF" de la variable `noms_long`. On pourrait la remplacer par une autre chaine de caractère ou par rien en utilisant `""`.
+
+```{r replace_carac}
+noms_long <- "~/Documents/private_AF11-I-T48_intersec_3_replicats.csv"
+gsub("AF11-", "GET_SCHWIFTY_", noms_long) # remplacé par une autre chaine de caractère
+gsub("AF11-", "", noms_long) # Supprimer
+```
 
 # Statistiques
 
