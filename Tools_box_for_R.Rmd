@@ -239,7 +239,7 @@ max(Alea)
 
 ```{r}
 # Write CSV in R
-write.table(MyData, file = "MyData.csv")
+write.table(donnees, file = "MyData.csv")
 
 # Write CSV le fichier est encore à retravailler après pb au niveau des tab etc..
 #write.table(suivie_Morta, file = "/home/jean/Documents/out_R/suivie_mortalite.csv",row.names=TRUE, na="", col.names=TRUE, sep = "\t",
@@ -291,7 +291,7 @@ Remarque sur les fichier en excel : il faut utiliser les chiffres décimaux avec
 Pour créer un dataframe appelé `df` à partir du fichier `donneAimporter.txt`
 
 ```{r importation_dataframe}
-df <- read.table("~/Document/exemples/donneAimporter.txt", header = FALSE, dec = ".", sep = "\t", stringsAsFactors=F)
+df <- read.table("~/Documents/donneAimporter.txt", header = FALSE, dec = ".", sep = "\t", stringsAsFactors=F)
 df
 ```
 
@@ -560,12 +560,119 @@ donnees$A
 
 ### Operation sur un vecteur
 
+#### Operation arithmétique sur un vecteur
+
 On peut faire des opérations arithmétique (additionner, multiplier..) sur les éléments d'un vecteur par un nombre/variables etc..
 
 ```{r}
-donnees$A*2
-donnees$A/2
+vecteur
+vecteur*2
+vecteur/2
 ```
+
+#### Analyse sur un vecteur
+
+Renvoi des booléens pour chacun des éléments d'un vecteur en fonction d'une condition. Ici on affiche pour chacune des valeurs du vecteur `vecteur` si elle sont vraiment inférieur à 30.
+
+```{r}
+vecteur < 30
+```
+
+#### Manipulation des éléments d'un vecteur
+
+##### Extraire un élément
+
+Il faut simplement mettre la position de l'élement à extraire, par exemple pour le 2eme éléments
+
+```{r extract_vec_1}
+vecteur[2]
+```
+
+*Remarque contrairement à la majorité des languages de programmation, sur R le comptage ne commence pas à 0*
+
+##### Extraire un nombre d'éléments
+
+Ici les éléments à parir de 2 à 4 du vecteur.
+
+```{r extract_vec_2}
+vecteur[c(2,4)]
+```
+
+*Remarque si on est hors du range du vecteur on aura des `NA` pris en compte*
+
+##### Extraire des éléments selon une condition
+
+Ici on extrait les éléments du vecteur qui sont suppérieur à 30
+
+```{r extract_vec_3}
+vecteur[vecteur>30]
+```
+
+##### Extraire des éléments selon plusieurs conditions
+
+Ici on extrait les éléments du vecteur qui sont suppérieur à 30 mais inférieur à 50.
+
+```{r extract_vec_4}
+vecteur[vecteur>30 & vecteur<50]
+```
+Il est important de noter que les 2 conditions doivent être entirement écrite, et pas simplement `>30 & <50`
+
+##### Extraire les n plus petits éléments d'un vecteur
+
+La fonction `sort()` permet de trier les éléments par ordre croissant tandis que `1:3` (qui est le $n$ du titre) permet d'afficher les éléments 1, 2, 3. 
+
+```{r extract_vec_5}
+1:3 # exemple pour de 1 à 3
+sort(vecteur)[1:3]
+```
+
+Ainsi en réalité on recrée un vecteur, `sort(vecteur)` pour lequel on affiche les éléments 1, 2, 3 comme vue [précedemment]( #extraire-un-nombre-d'éléments)
+
+##### Retrouver l'emplacement des éléments d'un vecteur
+
+Ici on utilise la fonction `which()` qui va parcourir le vecteur qui lui est soumis et va renvoyer tout les numéros des éléments pour lequelle la condition est vrai.
+
+```{r which_vec}
+vecteur
+which(vecteur < 30) # sur le vecteur avec des chiffres
+
+distribution_courrier <- rep(c("rapide", "moyen", "fort"), c(1,2,3))
+distribution_courrier
+which(distribution_courrier == "fort")
+```
+
+Le 3,4,5ème élément du vecteur `distribution_courrier` correspond à la valeur `"fort"`.
+
+<details><summary>More informations</summary>
+<p>
+
+En réalité la fonction `which()` correspond en vrai à une **boucle for** avec une condition. En R cela donnerai 
+
+```{r loop_conditional_more}
+a <-1 # ici parce que R ne commmence pas à 0
+for (i in distribution_courrier) {
+  if (i == "fort") {
+    print(a)
+  }
+  a <- a +1
+}
+```
+
+Toutefois, les boucles for conditionnel ne sont pas courante sur R et sont presque systématiquement remplacer par `which()`.
+
+</p>  
+</details>
+
+##### Remplacer des éléments d'un vecteur par autre chose
+
+```{r replace_vec}
+distribution_courrier_2 <- rep(c("rapide", "moyen", "fort"), c(1,2,3))
+distribution_courrier_2
+distribution_courrier_2[which(distribution_courrier == "fort")] <- 
+```
+
+
+### Extraire des données d'un dataframe ou d'une matrice
 
 ### Manipuler un chaine de caractère
 
@@ -626,9 +733,26 @@ Il s'agit ici de maitriser les expressions régulières
 
 ```{r}
 noms_long <- "~/Documents/private_AF11-I-T48_intersec_3_replicats.csv"
-all_data$condition <- as.factor(sub("\\.", "", all_data$condition)) # remove a dot without using pattern
-
+sub("^.*AF.8_.*", "", noms_long)
+grep("AF", noms_long, value = TRUE)
 ```
+
+Remarque si l'on veut utiliser des caractères qui sont le même qu pour les expressions réguilère il faut utiliser la synthaxe suivante :
+
+- `\\.` pour le point
+
+On peut identifier une expression régulière  avec :
+
+```{r}
+pat <- "^.*United State.*$"
+```
+
+Le `^` représente le début de l'expression régulière, et `$` représente la fin. Le `.` représente n'importe quel type de caractère et le `*` défini une répétition (de 0 à n'importe)
+
+Here, the ^ represents the beginning and $ the end of the string, while . stands for any character and * defines a repetition (zero to any). You can experiment with modified patterns, such as
+
+
+Pour d'avantage d'information consulter : https://rstudio-pubs-static.s3.amazonaws.com/74603_76cd14d5983f47408fdf0b323550b846.html
 
 #### Remplacer un caractères d'une chaine de caractère par autre chose
 
@@ -639,6 +763,7 @@ noms_long <- "~/Documents/private_AF11-I-T48_intersec_3_replicats.csv"
 gsub("AF11-", "GET_SCHWIFTY_", noms_long) # remplacé par une autre chaine de caractère
 gsub("AF11-", "", noms_long) # Supprimer
 ```
+
 
 # Statistiques
 
