@@ -37,3 +37,6 @@ rsconnect/
 
 # Ignore html files
 *.html
+
+# Ignore txt files
+*.txt

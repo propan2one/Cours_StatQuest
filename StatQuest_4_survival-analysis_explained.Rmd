@@ -1,0 +1,166 @@
+---
+title: "Analyse de survie"
+author: "Delmotte Jean"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Usage
+
+#Rscript -e "rmarkdown::render('analyse_fichier_pysamstats.Rmd', params=list(A = '/home/jean/Documents/Training_R_data_set/fichier_A.txt', B = '/home/jean/Documents/Training_R_data_set/fichier_B.txt', C = '/home/jean/Documents/Training_R_data_set/fichier_C.txt'))"
+
+# Fonction to install / load package if it's not here
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+# usage
+packages <- c("ggplot2", "limma", "knitr", "survival", "KMsurv", "ranger", "dplyr", "kmconfband", "GGally", "survminer", "scales")
+ipak(packages)
+```
+
+# Introduction
+
+Dans cette partie nous allons parlé des variables dans la durée, on les appels aussi *variable de survie*. Elles sont souvent associé aux courbes de survie et elles permettent de comprendre l'évolution d'un échantillon dans le temps entre **deux status** : un statut dit **initial** et un statut dit **final**. Entre ces 2 status, une durée qui va varier selon les individues. Typiquement : la durée entre la naissance et la mort, la durée entre l'administration d'un traitement et la mort, etc..
+
+## Première caractéristique des varables de survie : la censure
+
+Ces variable sont caractérisé par ce qu'on appel la **censure**. Un valeur est dite *censuré* lorsque la date d'acquisition du status initial ou final **n'est pas connue**. Cela signifie que la durée qui a été mesuré n'est pas **bornée** pour un/ ou plusieurs individue. On peut alors retirer l'individue si on a assez de mesure dans notre échantillon ou exploité quand même la durée partielle entre les deux status (surtout si pas beaucoup d'individue).
+
+De plus on peut censurer des individus (en ce référent à l'axe du temps ou le passé est à gauche et le futur à droite) soit : 
+- A droite, la durée mesuré permet au moins de dire que ce temps n'a pas suffit pou que l'individue aquière le status final.
+- A gauche, il aura fallu ce temps pour que l'individu acquière le statut final.
+
+## Deuxième caractéristique des varables de survie : la représentation graphique
+
+En général les courbes de survit sont représenté avec une graphique en **courbe de Kaplan-Meier**. Cette représentation donne la proportion d'individus d'un échantillon qui n'ont pas atteint le statut final en fonction du temps.
+L'avantage de cette représentation est : 
+- Elle exploite les informations des censures droites
+- Elle peut servir à faire des prédictions de survie
+- Elle permet de **comparer des echantillons** sur le même graphique
+
+### Kaplan-Meier fondé sur les intervalles de temps
+
+L'obtention d'une courbe de Kaplan-Meier, est fondé sur **les intervalles de temps**. Il n'est pas difficile de comprendre la porté prédicitive de la courbe. Si l'échantillon est représentatif de la population, **la proportion devient alors une probabilité**.
+
+```{r Kaplan}
+exemple <- data.frame(day=c(2,3,4,4), censor=c(1,1,0,0), nom=c("condition1", "condition1", "condition1", "condition1"))
+exemple
+
+surv <- survfit(Surv(day, censor) ~ nom, data = exemple)
+summary(surv)
+
+# Plot kaplan meier
+surv.p<-ggsurvplot(surv,size=1.5,legend=c(0.2,0.2),
+                   legend.title="Conditions",legend.labs= c("condition1"),back.white=TRUE, font.x=c(15, "bold"),
+                   font.y=c(15, "bold"), 
+                   font.tickslab=13,
+                   Conf.int=FALSE,
+                   palette = "lancet",
+                   linetype=c(2,1,6,3,5),
+                   pval=FALSE,
+                   xlab = "Time (day)",
+                   ylab = "Survival",
+                   main = "")
+
+surv.p
+
+```
+
+
+### Kaplan-Meier fondé sur les probabilités conditionelles
+
+Un autre technique (celle utilisée par R), qui donne exactement le même résultat, utilise les **probabilités conditionelles**. La question ce pose ainsi :
+- Quelle est la probabilité qu'un individu acquières le statut final au temps $t$, sachant qu'à un temps inférieur, il ne l'avait pas acquis ?
+
+Dans cette technique on ne raisonne plus sur les intervalles de temps mais sur les **temps de chaque événement d'acquisition du statut final**
+
+La probailité de ne pas acquérir le statut final en fonction du temps s'obtient par la formule suivante :
+
+$P_r = \prod_{j=1}^{r} (1-q_j)$
+
+où $q_j= \frac{nombre d'individus acquérant le statut à t_j}{nombre d'individus pouvant acquérir le status à t_j}$
+
+et 
+
+- $r$ Le r ième événement d'aquisition di statut final observé ($1 \le r \le m$)
+
+- $m$ nombre de durée non similaire et non scensurée à droite
+
+- $t_j$ Le temps mis pour observer le j ième évenement d'acquisition 
+
+- $t_r$ Temps mis pour observer le r ième évenement d'acqusition (pas de différence avec $t_j$ lorsque r = j)
+
+- $P_r$ correspond à la probabilité de ne pas acquérir le statut final au-delà de la durée $t_r$ (si le statut final est le décès, c'est la probabilité de survie, ou encore le taux de survie, au delà de d$t_r$)
+
+- $q_j$ probabilité (ou risque) d'**acquérir le statut final** a $t_j$ sachant qu'il n'était pas acquis à $t_{j-1}$ (si le statut final est le décès, c'est la probabilité qu'un individu décède à $t_j$ sachant qu'il est vivant à $t_{j-1}$)
+
+- $1-q_j$ probabilité de **ne pas acquérir le statut final** à $t_j$ qu'il n'était pas acquis à $t_{j-1}$ (si le statut final est le décès, c'est la probabilité qu'un individu reste vivant à $t_j$ sachant qu'il est vivant à $t_{j-1}$)
+
+- $q_r$ Probabilité (ou risque) d'acquérir le statut final à $t_r$ sachant qu'il n'était pas acquis à $t_{r-1}$ (pas de différence avec $q_j$ lorsque r = j, la désignation $q_j$ est simplement nécessaire à la formule de $P_r$ pour exprimer le produit des probabilités)
+
+remarque : les individus pouvant acquérir le statut $t_j$ sont parfois appelé les *individus à risque du temps $t_j$.
+
+# Comparaison de deux courbes de survie (test du logrank)
+
+## Methode
+
+### Application
+
+Comparaison de deux courbes de survie (ou de non-acquisition d'un statut final si celui-ci n'est pas le décès)
+
+### Variable mesurées
+
+Une variable quantitative de durée et une variable qualtitative à deux classes. En présence de censures droite, on ajoute une variable qualitative de censure droite à deux classe "Oui"/"Non"
+
+### Condition d'application
+
+- Les individues formant l'échantillon doivent être choisis un par un et aléatoirement dans l'ensemble de la population visée.
+
+- Chaque individu doit posséder une valeur de chacune des variables (une donnée manquante supprime l'individue de l'étude)
+
+- Les classes de la variable qualitative doivent être exclusives (on peut pas être mort et vivant)
+
+- La variable quantitative de durée peut être continue ou discrète
+
+- La variable qualitative est nominale (i.e. qu'elle présente des catégories que l'on nomme avec un nom)
+
+- L'évenement à l'origine de chaque censure doit être indépendant du statut final mesuré. De plus la censure doit avoir la même probabilité d'apparition dans chacune des classes de la variable qualitative.
+
+- La variable qualitative peut être fixée, cas où les individues ne sont pas choisis au hasard dans la population pour ensuite regarder qu'elle est leurs variable qualitative, mais où les individues sont choisit au hasard dans la population pour former 2 classes à effectifs fixés et ou le regarde la variable qualtitatve (ex : 50 avec médicament et 50 avec placebo)
+
+### Hypothèses de test
+
+- $H_0$ : Les deux courbes de survie sont identique dans la population visé
+
+- $H_1 bilat$ : Les deux courbes de survie sont différentes dans la population visé
+
+Remarque : pour les hypothèses unilatérales (pas abordé), il faut passer par le test de **Mantel-Haenszel** qui est l'équivalent du logrank.
+
+### Loi de probabilité suivie par la variable de test sous H0
+
+La variable de test (VT) suit approximativement un loi du $\chi²$ à v=1 degré de liberté (ddl)
+
+### Calcul de la variable de test
+
+Le tableau initial est le suivant :
+
+| Individu      | Variable durée  | Censure droite  | Variable qualitative |
+| ------------- |:---------------:|:---------------:| --------------------:|
+| 1             | $t_1$           | $c_{s1}$        | $c_1$                |
+| ...           | ...             | ...             | ...                  |
+| $i$           | $t_i$           | $c_{si}$        | $c_i$                |
+| ...           | ...             | ...             | ...                  |
+| $n$           | $t_n$           | $c_{sn}$        | $c_n$                |
+
+- $i$ : numéro de l'individu
+- $n$ : effectif total de l'échantillon
+- $t_i$ : durée d'acquisition du status dinal de l'individu i
+- $c_{si}$ : désigne si la durée est censuré à droite avec 1 signifiant *non* et 0 *oui* c'est donc comme un variable qualtitative possédant 2 classes
+- $c_i$ : valeur de la variable qualitative de l'individu i : soit le nom de la classe 1, soit le nom de la classe 2
