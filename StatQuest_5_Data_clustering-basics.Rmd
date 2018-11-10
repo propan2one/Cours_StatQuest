@@ -4,6 +4,25 @@ author: "Delmotte Jean"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Fonction to install / load package if it's not here
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+# usage
+packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RColorBrewer",
+              "lattice", "scales", "plotrix", "gridExtra", "reshape2", "tidyr", "randomForest",
+              "cowplot", "RAM", "cluster", "factoextra")
+ipak(packages)
+```
+
 # Data Clustering Basics
 
 from : https://www.datanovia.com/en/courses/data-clustering-basics/
@@ -42,12 +61,90 @@ Pour réaliser l'analyse de cluster en R, généralement les données sont prép
 
 Dans l'exemple fourni par l'auteur, les jeux de données est "USArrests" qui contient les statistique des arrestations sur des délits grave pour 100 000 habitants, dans chacun des 50 états des USA en 1973. Il contient également le pourcentage vivant dans les zones urbaines.
 
-Il peut être téléchargé [ici]()
+Les données `USArrests.csv``sont téléchargeables [ici]()
 
-USArrests.csv
+### Importation des données
 
-```{r}
-data("USArrests")  # Load the data set
-df <- USArrests    # Use df as shorter name
+```{r importation datas}
+# Importation des datas
+df <- read.table("~/Documents/propan2one.github.io/datas/USArrests.csv", header = FALSE, dec = ".", sep = ",", stringsAsFactors=F)
+colnames(df) <-df[1,]
+df <- df[-1,]
+# save les noms dans un vecteur pour après
+noms_lignes <- df[,1]
+df
 ```
 
+## Suppression valeur manquante
+
+On regarde maintenant si il ya des valeurs manquantes
+
+```{r rm_na}
+head(is.na(df))
+
+# Dans le doute
+df <- na.omit(df)
+df <- df[,-1]
+
+summary(df)
+```
+On peut observer que les données sont en caractère
+
+```{r modif_var}
+#noms_lignes <- df[,1]
+
+# Change les caractères en numérique <3
+df <- data.frame(llply(df, function(x) {
+  df <- str_replace_all(x, pattern="[^0-9\\.\\,-]", replacement="")
+  x <- str_replace(x, pattern="\\,", replacement=".")
+  return(as.numeric(x))
+}))
+# d'ou enregistrer les noms au préalable dans ce cas
+rownames(df) <- noms_lignes
+class(df)
+df <- as.data.frame(df) # transformer en matrice du coup
+df
+```
+
+
+## Normalisation des données
+
+Comme on ne voudrait pas que l'algorithme dépende d'une variable arbitraire, on va les normaliser pour **pouvoir les rendres comparable**.
+
+```{r normalisation}
+df <- scale(df)
+head(df)
+```
+
+Les données sont maitenant normalisé ! 
+
+Remarque :
+- Il existe plusieurs façon de nomaliser ses données, par exemple en biologie on utilise beaucoup le FDR pour False discovery rate, on regardera ça dans un futur article.
+
+## Utilisation des packages
+
+Nous allons maintenant importer les 2 packages qui nous permettront de faire du clustering :
+
+- **cluster** pour faire tourner l'algorithme de clustering
+
+- **factoextra** pour visualiser les résultats avec ggplot2
+
+```{r}
+#install.packages(c("cluster", "factoextra"))
+```
+
+Functions  | Description
+------------- | ------------------------------------------------------------------------
+Functions    |    Description
+dist(fviz_dist, get_dist)    |    Calcul de la matrice de disatance et visualisation
+get_clust_tendency    |    Evaluation de la dendence du cluster
+fviz_nbclust(fviz_gap_stat)    |    Détemination du nombre optimal de cluster
+fviz_dend    |    Améliore la visualisation du dendrograme
+fviz_cluster    |    Visualisation des résultats du clustering
+fviz_mclust    |    Visualisation des résultats du cluster basé sur le modèle
+fviz_silhouette    |    Visualisation des information de la silhouette
+hcut    |    calcul le clustering herarchique et coupe l'arbre
+hkmeans    |    Hierarchical k-means clustering
+eclust    |    Visualisation amélioré de l'analyse de clustering
+
+# Clustering Distance Measures 
