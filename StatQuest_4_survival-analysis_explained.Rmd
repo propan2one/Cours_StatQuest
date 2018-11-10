@@ -164,3 +164,4 @@ Le tableau initial est le suivant :
 - $t_i$ : durée d'acquisition du status dinal de l'individu i
 - $c_{si}$ : désigne si la durée est censuré à droite avec 1 signifiant *non* et 0 *oui* c'est donc comme un variable qualtitative possédant 2 classes
 - $c_i$ : valeur de la variable qualitative de l'individu i : soit le nom de la classe 1, soit le nom de la classe 2
+

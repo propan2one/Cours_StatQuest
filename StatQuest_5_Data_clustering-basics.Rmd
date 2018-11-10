@@ -1,0 +1,53 @@
+---
+title: "Data Clustering"
+author: "Delmotte Jean"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+# Data Clustering Basics
+
+from : https://www.datanovia.com/en/courses/data-clustering-basics/
+
+## Introduction
+
+Le **data clustring** est un méthode de [datamining](StatQuest_3_biostatistique_part_1.md) pour identifer les groupes ou des objets similaires dans un large jeux de donnée multivarié collecté.
+
+La similarité entre les observations (ou individus) est définie/calculé en utilisant des distances inter-observation, ces distances peuvent être des mesure Euclidienne et des mesure basé sur la corrélation.
+
+Il existe diffréente façon de faire du clusteringn incluant :
+
+- Des approches de **Partitioning clustering**, qui subdivise les données dans des ensembles de $k$ groups. L'une de ce méthode  très populaire est le *k-means clustering*.
+
+- Des approches de **Hierarchical clustering**, qui identifie les groupes dans des sans les subdivisées.
+
+Le courses présenté ici va présenté les informations de bases pour  faire de l'analyse de cluster. Il s'agit d'une traduction en français du cours de la page [datanovia](https://www.datanovia.com/en/courses/data-clustering-basics/) réalisé par X.
+
+Compétences dans :
+
+- La préparation des données et les package esssentiel pour les analyses de cluster.
+
+- La base dans les
+
+- Le code nécessaire à faire du clustering par l'approche de k-means clustering, et de Hierarchical clustering.
+
+## Préparation des données pour le clustering
+
+Pour réaliser l'analyse de cluster en R, généralement les données sont préparé ainsi :
+
+1. Une ligne pour chacun des individus et une colonne pour chacunes des variables.
+
+2. Chaque valeur manquante doit être enlevé ou estimé.
+
+3. Les datas sont obligatoirement standardisé (i.e. normalisé) pour **pouvoir les rendres comparable**. La standardisation consiste à transformer les variables se manière à ce que la moyenne soit à 0 et l'écart type à 1 (théorème central limit?).
+
+Dans l'exemple fourni par l'auteur, les jeux de données est "USArrests" qui contient les statistique des arrestations sur des délits grave pour 100 000 habitants, dans chacun des 50 états des USA en 1973. Il contient également le pourcentage vivant dans les zones urbaines.
+
+Il peut être téléchargé [ici]()
+
+USArrests.csv
+
+```{r}
+data("USArrests")  # Load the data set
+df <- USArrests    # Use df as shorter name
+```
+
