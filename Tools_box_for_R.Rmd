@@ -21,7 +21,7 @@ https://adv-r.hadley.nz/quasiquotation.html
     * [Ecrire un fichier CSV à partir d'un dataframe](#ecrire-un-fichier-csv-à-partir-d'un-dataframe)
     * [Création d'un vecteur de date](#création-d'un-vecteur-de-date)
     * [Gérer les erreurs](#gérer-les-erreurs)
-* [Dataset]()
+* [Dataset](#dataset)
     * [Creation par importation de fichier](#creation-par-importation-de-fichier)
         * [Importation de tableaux](#importation-de-tableaux)
         * [Description d'un objet de données](#description-d'un-objet-de-données)
@@ -31,6 +31,10 @@ https://adv-r.hadley.nz/quasiquotation.html
         * [Opération sur un vecteur](#opération-sur-un-vecteur)
         * [Opération sur les matrices](#opération-sur-les-matrices)
         * [Opération sur les dataframes](#opération-sur-les-dataframes)
+          * [Enlever une ligne d'un dataframe](#enlever-une-ligne-d'un-dataframe)
+          * [Enlever des lignes d'un dataframe par position](#enlever-des-lignes-d'un-dataframe-par-position)
+          * [Enlever des lignes d'un dataframe par condition](#enlever-des-lignes-d'un-dataframe-par-condition)
+          * [Forcer la transformation de caractère à numérique](#forcer-la-transformation-de-caractère-à-numérique)
         * [Manipuler un chaine de caractère](#manipuler-un-chaine-de-caractère)
 * [Statistiques](#statistiques)
     * [Statistique descriptives](#statistique-descriptives)
@@ -694,8 +698,6 @@ names(donnees) # noms variable
 dimnames(donnees) # noms individue et noms variables
 ```
 
-#### 
-
 #### Operation arithmétique sur un dataframes
 
 Fort utile pour **normaliser** des données. On applique la valeur de normalisation sur l'une des colonnes du daataframe
@@ -705,8 +707,64 @@ donnees*3 # multiplication
 donnees$A*3
 ```
 
-#### C----
 
+
+#### Enlever une ligne d'un dataframe
+
+On utilise alor la position, c'est à dire un nombre qui commence à 1 et finit au nombre de ligne du dataframe. ici la 3eme ligne
+
+```{r rm_line}
+donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15))
+donnees
+donnees <- donnees[-3,]
+```
+
+remarque : le `-` est la justement pour signaler qu'il faut supprimer la ligne. On stock alors le résultat dans le dataframe avec le même noms (pour économiser de la place dans la mémoire).
+
+#### Enlever des lignes d'un dataframe par position
+
+En réaliter il vaut mieux utiliser la fonction [subset]() à partir d'un gros dataframe, toutefois dans certain cas on doit enlever des lignes (renomme des nom de lignes à partir d'une des lignes, suppression)
+
+Pour enlever plusieur lignes on utilise un vecteur de la même manière que avant avec le nombre qui correspond au numéro de ligne du dataframe.
+
+```{r rm_lines_pos}
+donnees
+donnees <- donnees[-c(1:5),]
+donnees
+```
+
+#### Enlever des lignes d'un dataframe par condition
+
+Pour enlever plusieur lignes on peut utiliser une condition, dans l'exemple si il y a le numérique 17
+```{r}
+donnees
+donnees <- donnees[ !(donnees$A %in% 17),]
+donnees
+```
+
+Remarque :
+- On peut mettre un numérique ou une chaine de caractère `"JeSuisUneChaine"`
+- On peut utiliser une condition avec un vecteur, par exemple avec un `which()` tel que 
+
+```{r}
+donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15))
+donnees
+donnees <-donnees[-c(which(donnees$A == 17)),]
+donnees
+```
+
+
+#### Forcer la transformation de caractère à numérique
+
+```{r}
+abondance_brut <- data.frame(llply(abondance_brut, function(x) {
+  abondance_brut <- str_replace_all(x, pattern="[^0-9\\.\\,-]", replacement="")
+  x <- str_replace(x, pattern="\\,", replacement=".")
+  return(as.numeric(x))
+})) # Change les caractères en numérique <3
+```
+
+#### 
 
 ### Manipuler un chaine de caractère
 
@@ -1013,7 +1071,7 @@ https://gist.github.com/derekmcloughlin/896da22518ef2f3d81b0
 ## ggplot2
 il est nécessaire d'installer le package ggplot2 pour utiliser le code dessous
 
-## par defaut
+### par defaut
 
 A ajouté dans les manip de dataframe
 
