@@ -61,7 +61,7 @@ Pour réaliser l'analyse de cluster en R, généralement les données sont prép
 
 Dans l'exemple fourni par l'auteur, les jeux de données est "USArrests" qui contient les statistique des arrestations sur des délits grave pour 100 000 habitants, dans chacun des 50 états des USA en 1973. Il contient également le pourcentage vivant dans les zones urbaines.
 
-Les données `USArrests.csv``sont téléchargeables [ici]()
+Les données `USArrests.csv``sont téléchargeables [ici](https://github.com/propan2one/propan2one.github.io/tree/master/datas)
 
 ### Importation des données
 
@@ -88,7 +88,7 @@ df <- df[,-1]
 
 summary(df)
 ```
-On peut observer que les données sont en caractère
+On peut observer que les données sont en caractère $\mathbb{R}$
 
 ```{r modif_var}
 #noms_lignes <- df[,1]
@@ -147,4 +147,77 @@ hcut    |    calcul le clustering herarchique et coupe l'arbre
 hkmeans    |    Hierarchical k-means clustering
 eclust    |    Visualisation amélioré de l'analyse de clustering
 
+___
+
 # Clustering Distance Measures 
+
+from : https://www.datanovia.com/en/lessons/clustering-distance-measures/
+
+## Methode pour mesurer les distances
+
+Le choix de la méthode pour mesurer les distance est une étape crucial dans le clustering. Cela va définir comment la similarité entre 2 éléments (x,y) est calculé et cela va influencer la forme des différents groupes/cluster. En mathématique, une **distance** est une relation entre deux ensembles pour laquelle chaque élément du premier (ensemble de départ) est relié à un unique élément du second (ensemble d'arrivé). cette relation formalise l'idée de la longueur qui sépare les 2 ensembles.
+
+De plus, les méthodes classique pour mesurer les distances sont la mesure de distance **Euclidienne** et de distance **Manhattan**. mais d'autres existes.
+
+Enfin, dans les formule en dessous, $x$ et $y$ sont 2 vecteurs de taille $n$ et la distance entre $x$ et $y$ est noté $d(x,y)$
+
+### Distance Euclidienne
+
+- La distance Euclidienne est la plus courte distance entre deux points, appelée aussi distance à vol d'oiseau, c'est la racine carrée de la somme des carrés des différences de coordonnées en X et en Y.
+$$d_{euc}(x,y)=\sqrt{\sum_{i=1}^{n} (x_i-y_i)²}$$
+Cela revient, en gros, à créer un troisième point à partir des 2 premiers de sorte à ce qu'il forme un triangle rectangle en ce point. La distance Euclidienne correspond alors à l'hypothénus de ce triangle.
+
+### Distance Manhattan
+
+- La distance de Manhattan est égale à la somme des valeurs absolues des différences de coordonnées en X et en Y. O, l'appel aussi *taxi-distance*. Il faut l'imaginé comme ma distance que doit parcourir un taxi dans un ville dons les route constitue un réseau de quadrillage (cf la page [wikipedia](https://upload.wikimedia.org/wikipedia/commons/0/08/Manhattan_distance.svg?uselang=fr), remarque si l'on dénombre les distances on voit que le trajet rouge/jaune et bleu font la même longueur).
+
+$$d_{man}(x,y)=\sum_{i=1}^{n} |{(x_i-y_i)}|$$
+Il est évident que la mesure de la distance de Manhattan est plus grande (ou égale) que celle de la distance Euclidienne.
+
+___
+
+D'autres mesure de dissimilarité existe, comme par exemple les **mesure de distance basé sur la corrélation** (aussi appelé distance de covariance), qui sont très répandu pour l'analyse de jeux de données sur l'expression génique. Les distances basé sur la corrélations sont définie en soustrayant le **coefficient de corrélation** de 1. La distance de corélation mesure donc la dépendant entre 2 vecteurs aléatoire (pas forecément de même dimensions)
+
+
+Différents types de méthodes de corrélation peuvent être utilisé comme 
+
+### Distance de corrélation de Pearson
+
+- Aussi appelé *bivariate corrélation*, la distance ce base sur mesure des coefficients corrélations entre 2 variables $x$ et $y$. Ces corrélations peuvent seulement détecter les **associations linéaire** entre 2 variables aléatoires. la comme il s'agit de coef de corrélation chaque distance est comprise entre 0 (non corrélé) et 1 (très fortement corrélé).
+
+$$d_{cor}(x,y)=1 -\frac{\displaystyle\sum_{i=1}^{n} (x_i-\bar{x})(y_i-\bar{y})} {\sqrt{\displaystyle\sum_{i=1}^{n}(x_i-\bar{x})^2 \sum_{i=1}^{n}(y_i-\bar{y})^2}}$$
+On voit donc bien que la mesure de corrélation de pearson estime le degré de relation linéaire entre 2 profiles. Si la formule est trop barbar, je vous conseil de jeter un oeil sur le cours sur les [corrléations]()
+
+### Distance de corrélation cosine Eisen
+
+- Il s'agit d'un cas particulié de la distance de corrélation de Pearson avec $\bar{x}$ et $\bar{y}$ remplacé par 0.
+
+$$d_{eisen}(x,y)=1 -\frac{|\displaystyle\sum_{i=1}^{n} x_i y_i|} {\sqrt{\displaystyle\sum_{i=1}^{n}x_i^2 \sum_{i=1}^{n}y_i}}$$
+
+### Distance de corrélation de Spearman
+
+- Comme souvent avec Speaman, la methode de calcul sur les corrélation de spearman, utilise le **rang** des varablie de $x$ et $y$. C'est une méthode **non paramétrique**.
+
+$$d_{spear}(x,y)=1 -\frac{\displaystyle\sum_{i=1}^{n} (x'_i-\bar{x'})(y'_i-\bar{y'})} {\sqrt{\displaystyle\sum_{i=1}^{n}(x'_i-\bar{x'})^2 \sum_{i=1}^{n}(y'_i-\bar{y'})^2}}$$
+
+Avec $x'_i = rank(x_i)$ et $y'_i = rank(y_i)$
+
+### Distance de corrélation de Kendall
+
+- La mesure de la distance ce base sur le **tau de Kendall** qui est une statistique qui mesure l'association entre deux variables. Plus spéficiquement, le tau de Kendall mesure la **corrélation de rang** entre deux variables. Il est compris entre -1 et 1. Si $x$ et $y$ sont indépendants; il est attendu que la valeur du tau soit approximativement zéro. Le nombre total de pairing de $x$ avec $y$ observations est $n(n-1)/2$, où $n$ est la taille de $x$ et $y$. En commençant par ordonner les paires par les valeurs de $x$. Si $x$ et $y$ sont corrélé alors ils devrait avoir le même position de rang. Maitnenant pour chaque $y_i$ le comptage du nombre de $y_j > y_i$ (concordante paires ($c$)) et le nombre de $y_j < y_i$ (paires discordante ($d$)).
+
+$$d_{kend}(x,y) = 1 - \frac{n_c - n_d}{\frac{1}{2} n(n-1)}$$
+Où : 
+- $n$ la taille de $x$ et $y$
+
+- $n_c$ représente le nombre total de paires concordantes
+
+- $n_d$ représente le nombre total de paires discordantes
+
+### Dissemblance de Bray-Curtis
+
+- La "distance" de Bray-curtis, ou indice de dissimilarité de Bray-curtis est utilisé en biologie pour évaluer la dissimilarité entre 2 échantillons données, en terme d'abondance d'espèces présentes dans chacun de ces échantillons, voir [Wiki](https://fr.wikipedia.org/wiki/Distance_de_Bray-Curtis) que j'ai (un peu) résumé.
+
+L'indice de Bray-Curtis ne statisfait par [l'inégalité triangulaire](https://fr.wikipedia.org/wiki/In%C3%A9galit%C3%A9_triangulaire) (i.e. une mesure minimale), il est appelé distance **à tord** distance !
+
+Cette indice de dissimilarité de Bray-Curtis est compris entre 0 (les deux échantillons on la même composition) à 1 (les échantillons sont totalement dissemblable)
