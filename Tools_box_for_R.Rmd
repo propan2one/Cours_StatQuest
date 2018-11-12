@@ -7,14 +7,52 @@ output: html_document
 A allé voir, ce site semple très complet
 https://adv-r.hadley.nz/quasiquotation.html
 
-
-- [#Package](#package)
-- [#La base](#la-base)
-- [#Dataset](#dataset)
-- [#Statistiques](#statistiques)
-- [#plot](#plot)
-- [#Rmarkdown](#rmarkdown)
-- [#Mise en page](#mise-en-page)
+* [La base](#la-base)
+    * [Type d'objets sur R](#type-d'objets-sur-r)
+        * [Objet simple](#objet-simple)
+        * [Vecteurs](#vecteurs)
+        * [Matrices](#matrices)
+        * [Arrays](#arrays)
+        * [Les Dataframes](#les-dataframes)
+        * [Les listes](#les-listes)
+        * [Les facteurs](#les-facteurs)
+        * [Les Tables](#les-tables)
+    * [Génération de données avec runif()](#génération-de-données-avec-runif())
+    * [Ecrire un fichier CSV à partir d'un dataframe](#ecrire-un-fichier-csv-à-partir-d'un-dataframe)
+    * [Création d'un vecteur de date](#création-d'un-vecteur-de-date)
+    * [Gérer les erreurs](#gérer-les-erreurs)
+* [Dataset](#dataset)
+    * [Creation par importation de fichier](#creation-par-importation-de-fichier)
+        * [Importation de tableaux](#importation-de-tableaux)
+        * [Description d'un objet de données](#description-d'un-objet-de-données)
+* [Data-mining](#data-mining)
+    * [Analyse d'un objet de données](#analyse-d'un-objet-de-données)
+    * [Modification et ou nettoyage des données](#modification-et-ou-nettoyage-des-données)
+        * [Opération sur un vecteur](#opération-sur-un-vecteur)
+        * [Opération sur les matrices](#opération-sur-les-matrices)
+        * [Opération sur les dataframes](#opération-sur-les-dataframes)
+          * [Enlever une ligne d'un dataframe](#enlever-une-ligne-d'un-dataframe)
+          * [Enlever des lignes d'un dataframe par position](#enlever-des-lignes-d'un-dataframe-par-position)
+          * [Enlever des lignes d'un dataframe par condition](#enlever-des-lignes-d'un-dataframe-par-condition)
+          * [Forcer la transformation de caractère à numérique](#forcer-la-transformation-de-caractère-à-numérique)
+        * [Manipuler un chaine de caractère](#manipuler-un-chaine-de-caractère)
+* [Statistiques](#statistiques)
+    * [Statistique descriptives](#statistique-descriptives)
+* [Plot](#plot)
+    * [Stripchart](#stripchart)
+    * [Boxplot](#boxplot)
+    * [Histogramme](#histogramme)
+    * [Barplot](#barplot)
+    * [Mos](#mos)
+    * [Venn Diagram](#venn-diagram)
+    * [Manathan plot ](#manathan-plot-)
+    * [Plotter uniquement un sous ensemble de données avec ggplot](#plotter-uniquement-un-sous-ensemble-de-données-avec-ggplot)
+    * [Lignes sur un plot](#lignes-sur-un-plot)
+    * [Multiple plot ](#multiple-plot-)
+      * [Comparer visuellement plusieurs graphique dans le cadre de l'exploration de données](#comparer-visuellement-plusieurs-graphique-dans-le-cadre-de-l'exploration-de-données)
+- [Rmarkdown](#rmarkdown)
+    * [Référence document de sortie](#référence-document-de-sortie)
+    * [Lancer un fichier Rmd avec des arguments](#lancer-un-fichier-rmd-avec-des-arguments)
 
 # Package
 
@@ -677,7 +715,6 @@ names(donnees) # noms variable
 dimnames(donnees) # noms individue et noms variables
 ```
 
-
 #### Operation arithmétique sur un dataframes
 
 Fort utile pour **normaliser** des données. On applique la valeur de normalisation sur l'une des colonnes du daataframe
@@ -720,6 +757,63 @@ print(list_data[1])
 ```
 
 
+
+#### Enlever une ligne d'un dataframe
+
+On utilise alor la position, c'est à dire un nombre qui commence à 1 et finit au nombre de ligne du dataframe. ici la 3eme ligne
+
+```{r rm_line}
+donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15))
+donnees
+donnees <- donnees[-3,]
+```
+
+remarque : le `-` est la justement pour signaler qu'il faut supprimer la ligne. On stock alors le résultat dans le dataframe avec le même noms (pour économiser de la place dans la mémoire).
+
+#### Enlever des lignes d'un dataframe par position
+
+En réaliter il vaut mieux utiliser la fonction [subset]() à partir d'un gros dataframe, toutefois dans certain cas on doit enlever des lignes (renomme des nom de lignes à partir d'une des lignes, suppression)
+
+Pour enlever plusieur lignes on utilise un vecteur de la même manière que avant avec le nombre qui correspond au numéro de ligne du dataframe.
+
+```{r rm_lines_pos}
+donnees
+donnees <- donnees[-c(1:5),]
+donnees
+```
+
+#### Enlever des lignes d'un dataframe par condition
+
+Pour enlever plusieur lignes on peut utiliser une condition, dans l'exemple si il y a le numérique 17
+```{r}
+donnees
+donnees <- donnees[ !(donnees$A %in% 17),]
+donnees
+```
+
+Remarque :
+- On peut mettre un numérique ou une chaine de caractère `"JeSuisUneChaine"`
+- On peut utiliser une condition avec un vecteur, par exemple avec un `which()` tel que 
+
+```{r}
+donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15))
+donnees
+donnees <-donnees[-c(which(donnees$A == 17)),]
+donnees
+```
+
+
+#### Forcer la transformation de caractère à numérique
+
+```{r}
+abondance_brut <- data.frame(llply(abondance_brut, function(x) {
+  abondance_brut <- str_replace_all(x, pattern="[^0-9\\.\\,-]", replacement="")
+  x <- str_replace(x, pattern="\\,", replacement=".")
+  return(as.numeric(x))
+})) # Change les caractères en numérique <3
+```
+
+#### 
 
 ### Manipuler un chaine de caractère
 
@@ -1038,7 +1132,7 @@ https://eranraviv.com/understanding-k-means-clustering/
 ## ggplot2
 il est nécessaire d'installer le package ggplot2 pour utiliser le code dessous
 
-## par defaut
+### par defaut
 
 A ajouté dans les manip de dataframe
 
