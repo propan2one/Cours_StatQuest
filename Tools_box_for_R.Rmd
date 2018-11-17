@@ -200,6 +200,8 @@ liste_vide <- vector("list",1)
 liste_vide
 ```
 
+
+
 ### Les facteurs
 
 Le facteur est un type de qualité qui ce déplace en velo et distribue le courri.. Non c'est un type de **vecteur adapté au variable qualitatives** Il est créé à partir d'un vecteur de caractère.
@@ -422,6 +424,20 @@ Il est possible d'importer un nombre de ligne défini :
 
 - Soit avec l'argument `nrows` qui permet de préciser le nombre de lignes à **importer**.
 Importer un nombre de ligne défini peut être utile lorsque l'on souhaite faire de la mise au point d'un gros dataframe pour le réduire.
+
+### Importation de plusieurs fichier dans le même dossier en utilisant des regex
+
+```{r}
+import_replicats <- function(famille){
+  parm <- lapply(Sys.glob( paste0("~/Documents/resultats_pysamstats_JEAN/pysamsatats_divoshv1/",famille,"/*.txt") ), read.file)
+  return(list(parm[1], parm[2], parm[3]))
+}
+
+AF11_T48 <- import_replicats("AF11-I-T48")
+replicat1 <- as.data.frame(AF11_T48[1])
+replicat2 <- as.data.frame(AF11_T48[2])
+replicat3 <- as.data.frame(AF11_T48[3])
+```
 
 
 ### Importation de vecteur
@@ -798,6 +814,38 @@ donnees*3 # multiplication
 donnees$A*3
 ```
 
+#### Remplacer NA par 0
+
+```{r}
+m <- matrix(sample(c(NA, 1:10), 100, replace = TRUE), 10)
+d <- as.data.frame(m)
+d[is.na(d)] <- 0
+```
+
+
+### Opération sur les listes
+
+Remarque sur les listes, comme R on ne peut retourner qu'un seul objet, les liste sont bien utile pour renvoyer plusieurs paramètres
+
+#### Donner un noms aux différents éléments dans la liste
+
+```{r names_list}
+liste_1 <- list(donnees, matrice, vecteur)
+names(liste_1) <- c("1st Quarter", "A_Matrix", "A Inner list")
+```
+
+#### Accéder aux éléments d'une liste
+
+https://www.tutorialspoint.com/r/r_lists.htm
+
+```{r}
+list_data <- list(c("Jan","Feb","Mar"), matrix(c(3,9,5,1,-2,8), nrow = 2),
+   list("green",12.3))
+
+# Access the first element of the list.
+print(list_data[1])
+```
+
 
 
 #### Enlever une ligne d'un dataframe
@@ -971,6 +1019,15 @@ gsub("AF11-", "", noms_long) # Supprimer
 filepath <- "~/Document/analyse_R/Nom_fichier.csv"
 sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(filepath))
 ```
+
+#### Récupérer le nom d'une des variables en chaine de caractère
+
+```{r}
+noms_long <- "~/Documents/private_AF11-I-T48_intersec_3_replicats.csv"
+Name_Var <- deparse(substitute(noms_long)) 
+Name_Var
+```
+
 
 # Statistiques
 
@@ -1294,6 +1351,9 @@ pour la visualisation et des subset de données -> https://datacarpentry.org/dc_
 
 Formule de math classique :
 https://gist.github.com/derekmcloughlin/896da22518ef2f3d81b0
+
+Clustering
+https://eranraviv.com/understanding-k-means-clustering/
 
 ## ggplot2
 il est nécessaire d'installer le package ggplot2 pour utiliser le code dessous
