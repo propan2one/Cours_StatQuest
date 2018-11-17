@@ -9,6 +9,8 @@ output: html_document
 
 Cette article est un **support** réunissant plusieurs éléments indispensable pour travailler avec R, il comprends les bases indispensables du language, de nombreux "tips" qui sont très utile pour les analyses (changer des caractère en numérique par exemple) et les visualisations avec une courte explication de leurs utilisations. Pour le moment le 14/11/2018, l'article n'est pas encore terminé, de plus, tout retour (bon ou mauvais) est interessant à prendre.
 
+Pour allé plus loins une fois que les base sont comprise je vous invite à voir le [site](https://sites.google.com/site/rgraphiques/home) réalisé par Antoine Massé (Université de Bordeaux). Ce site en français explique clairement comment prendre en main R et présente de nombreux exemple et exercice.
+
 # Navigation
 
 Il ne s'agit pas ici d'une table des matières exhaustive de tout le contenue de l'article (ça serait long et chiant à lire). L'idée ici est plutôt de mettre les grandes lignes directrice de l'article. C'est pourquoi il est encouragé lorsque l'on s'intéresse à une des partie de continuer à naviguer.
@@ -81,6 +83,7 @@ packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RCol
               "cowplot", "RAM", "VennDiagram", "datasets")
 ipak(packages)
 ```
+
 ___
 
 # La base
@@ -294,6 +297,7 @@ Ici 10 jours :
 
 ```{r}
 date_manips <- c(as.Date('2018-09-26') + 0:10)
+date_manips
 ```
 ## Gérer les erreurs
 
@@ -334,7 +338,7 @@ Heureusement, j'ai une [fonction](#utiliser-plusieurs-packages) très utile qui 
 
 La commande `install.packages()` permet d'installer les packages (d'ou son nom). Il faut mettre le nom du package entre `""`.
 
-```{r install_package}
+```
 install.packages("ggplot2")
 ```
 Remarque : si vous êtes sous linux (c'est que vous êtes probablement quelqu'un de bien) et que ça ne fonctionne pas, c'est qu'il faut un accès root. Dans ce cas vous pouvez voir l'article [ici](https://www.r-bloggers.com/installing-r-packages/)
@@ -342,7 +346,7 @@ Remarque : si vous êtes sous linux (c'est que vous êtes probablement quelqu'un
 ## Charger un package
 
 Toujours avec l'exemple de `ggplot2` 
-```{r load_package}
+```
 library(ggplot2)
 ```
 
@@ -399,18 +403,26 @@ rmarkdown::paged_table(df)
 ```
 
 On remarque bien que :
-- Le fichier à récupérer est un chaine de caractère contenant le chemin `~/Documents/propan2one.github.io/datas/` et le nom du fichier `USArrests.csv`. 
+
+- Le fichier à récupérer est un chaine de caractère contenant le chemin `~/Documents/propan2one.github.io/datas/` et le nom du fichier `USArrests.csv`.
+
 - Comme il s'agit d'une chaine de caractère on peut facilement **appliquer les fonctions/méthodes** qui leurs sont associés. Par exemple la fonction `paste()` qui permet de coller 2 chaines de caractère, ce qui si l'on stocke le chemin dans un variable permet d'importer plein de fichiers plus facilement.
+
 - L'argument `stringsAsFactors` permet de préciser que les chaines de caractères du tableau ne doivent pas être importer au format "factor" (qui est par défaut).
 
 Petit point pour les gens utilisant **Windows** le chemin est noté différement :
+
 - Il y a un `C:` en amont
+
 - Les slashs sont dans l'autre sens, au lieu d'être comme ça `/` ils sont `\`(touche -> Alt Gr + 8)
 
 Il est possible d'importer un nombre de ligne défini :
+
 - Soit avec l'argument `skip` qui permet de préciser le nombre de lignes à **éliminer**.
+
 - Soit avec l'argument `nrows` qui permet de préciser le nombre de lignes à **importer**.
 Importer un nombre de ligne défini peut être utile lorsque l'on souhaite faire de la mise au point d'un gros dataframe pour le réduire.
+
 
 ### Importation de vecteur
 
@@ -421,9 +433,12 @@ vect_import <- scan("~/Documents/propan2one.github.io/datas/donneAimporter.txt",
 vect_import
 ```
 
-Remarque : 
+Remarque :
+
 - La fonction `scan()` import par défaut des chiffres, or si il y a des caractères il faut ajouter l'argument `what()=""`.
+
 - On peut aussi importer des [listes](#les-listes) avec `scan()`.
+
 - L'importation de vecteur n'est pas très commune contrairement aux dataframes.
 
 ## Importation de dataset présent dans des packages
@@ -432,7 +447,7 @@ Il existe des packages ou sont regrouper des données classiquement utiliser dan
 
 ```{r iris}
 library(datasets)
-iris
+head(iris)
 ```
 
 Ici il s'agit du package `datasets` on l'on retrouve le jeu de donnée "iris".
@@ -500,6 +515,8 @@ summary(liste_1) # décrit les compartiments dans la liste
 summary(tableau_3) # nombres d'élément présent dans la table
 ```
 
+On voit ici des éléments abordé dans la partie des [Statistique descriptives](#statistique-descriptives)
+
 ### Nombre de lignes
 
 Pour un dataframe ou une matrice pour afficher le **nombre de lignes** présent on utilise la fonction `nrow()`
@@ -520,7 +537,7 @@ ncol(matrice)
 
 ## Modification et ou nettoyage des données
 
-Après l'importation des données il est souvent necessaire de les transformer. Bien souvvent lorsqu'un objet est transformer il est necessaire d'assigner la modification au nom de l'objet pour le conserver.
+Après l'importation des données il est souvent necessaire de les transformer. Bien souvent lorsqu'un objet est transformer il est necessaire **d'assigner la modification** à une variable (souvent lui même) pour conserver la modification.
 
 ```{r modif_datas}
 donnees$A
@@ -910,7 +927,7 @@ substr(noms_long, 21, 30)
 
 ##### En fonction d'un motif
 
-Il s'agit ici de maitriser les expressions régulières
+Il s'agit ici de maitriser les **expressions régulières**.
 
 ```{r}
 noms_long <- "~/Documents/private_AF11-I-T48_intersec_3_replicats.csv"
@@ -918,7 +935,7 @@ sub("^.*AF.8_.*", "", noms_long)
 grep("AF", noms_long, value = TRUE)
 ```
 
-Remarque si l'on veut utiliser des caractères qui sont le même qu pour les expressions réguilère il faut utiliser la synthaxe suivante :
+Remarque : si l'on veut utiliser des caractères qui sont le même qu pour les expressions réguilère il faut utiliser la synthaxe suivante
 
 - `\\.` pour le point
 
@@ -928,16 +945,20 @@ On peut identifier une expression régulière  avec :
 pat <- "^.*United State.*$"
 ```
 
-Le `^` représente le début de l'expression régulière, et `$` représente la fin. Le `.` représente n'importe quel type de caractère et le `*` défini une répétition (de 0 à n'importe)
+- Le `^` représente le début de l'expression régulière
 
-Here, the ^ represents the beginning and $ the end of the string, while . stands for any character and * defines a repetition (zero to any). You can experiment with modified patterns, such as
+- `$` représente la fin
+
+- Le `.` représente n'importe quel type de caractère 
+
+- Le `*` défini une répétition (de 0 à n'importe)
 
 
 Pour d'avantage d'information consulter : https://rstudio-pubs-static.s3.amazonaws.com/74603_76cd14d5983f47408fdf0b323550b846.html
 
 #### Remplacer un caractères d'une chaine de caractère par autre chose
 
-Ici on va supprimer le "AF" de la variable `noms_long`. On pourrait la remplacer par une autre chaine de caractère ou par rien en utilisant `""`.
+Ici on va **supprimer** le "AF" de la variable `noms_long`. On pourrait la **remplacer** par une autre chaine de caractère ou par rien en utilisant `""`.
 
 ```{r replace_carac}
 noms_long <- "~/Documents/private_AF11-I-T48_intersec_3_replicats.csv"
@@ -963,15 +984,13 @@ Remarque, d'autres articles vont reprendre en détails ces paramètres car ils s
 
 ### Moyenne
 
-Il s'agit de la **moyenne arithmétique des varaiable quantitatives**. On untilise des vecteurs pour fournir les valeurs à la fonction.
+La moyenne sert à **visualiser l'ordre de grandeur d’une distribution**, une population, ou d’un échantillon.
+Il s'agit de la moyenne arithmétique des varaiable quantitatives. On utilise des vecteurs pour fournir les valeurs à la fonction.
 
 ```{r mean}
-
-mean(c(1,9,16,84,9,354,7))
-
+mean(c(1,9,16,84,9,354,7)) # vecteurs 
 donnees
-mean(donnees$A)
-
+mean(donnees$A) # Moyenne sur le dataframe intitulé donnees
 ```
 
 Remarque : si il y a des valeurs manquantes (les `NA`) on peut les éliminer avec `na.rm = TRUE` tel que 
@@ -982,10 +1001,9 @@ mean(donnees$A, na.rm = TRUE)
 
 ### Mediane
 
-La médiane sert à caractériser la dispersion d’une distribution, une population, ou d’un échantillon autour de sa moyenne ou son espérance.
-La médiane d’une distribution, une population, ou d’un échantillon est un valeur au centre des observations trié, ou il y a 50% des observation d'un côté, et 50% de l'autre. Elle 
+La variance sert à **visualiser l'ordre de grandeur** d’une distribution, une population, ou d’un échantillon. Il s'agit de voir quelle est la valeur au centre des observations trié, ou il y a 50% des observation d'un côté, et 50% de l'autre.
 
-```{r}
+```{r median}
 median(donnees$A)
 median(c(1,5,5,6,12,89,2390)) # 7 éléments ordonnées
 median(c(12,5,89,6,5,2390,1)) # 7 éléments désordonnées
@@ -997,6 +1015,26 @@ Remarque :
 - On voit bien que dans le cas de le classement, 2 éléments identique compte bien pour 2
 - On voit aussi que si la taille de l'échantillon est paire, il s'agit de la demi-somme des deux valeurs du milieux
 
+### Quantile
+
+Les quantiles sont utile pour **visualiser l'ordre de grandeur d’une distribution**, une population, ou d’un échantillon.
+La fonction `quantile()` s'applique sur les colonnes d'un dataframe, pour l'appliqué sur les lognes d'un tableau il faut utiliser la fonction `sapply()`
+
+```{r quantile}
+sapply(donnees, quantile)
+```
+
+
+### Max
+
+```{r max}
+sapply(donnees, max)
+```
+
+
+### Min
+
+
 ### Ecart type
 
 Il s'agit de **l'écart type de varaiables quantitatives**. Ici les variances du dataframes `donnees` sont sur la diagonale de ma matrice.
@@ -1006,9 +1044,6 @@ Il s'agit de **l'écart type de varaiables quantitatives**. Ici les variances du
 sd(donnees$A)
 sd(donnees$B)
 sd(c(1,9,16,84,9,354,7))
-
-
-
 ```
 
 Remarque : si il y a des valeurs manquantes (les `NA`) on peut les éliminer avec `na.rm = TRUE` mais **attention**, ça va retirer tout les ligne du dataframe si il y a  ne serait-ce qu'un seul `NA` ! De plus, il existe des techniques pour estimer les valeurs manquantes (non détaillé ici).
@@ -1034,7 +1069,7 @@ var(donnees)
 
 Si la variance permet d’étudier les variations d’une variable par rapport à elle-même, la covariance va permettre d’étudier les variations simultanées de deux variables par rapport à leur moyenne respective.
 
-Il s'agit ici de la **co-variance non biaisées des varaiables quantitatives**. Ici les co-variances du dataframes `donnees` sont sur la diagonale de la matrice.
+Il s'agit ici de la **co-variance non biaisées des varaiables quantitatives**. Ici les variances du dataframes `donnees` sont sur la diagonale de la matrice.
 
 ```{r covariance}
 # vecteur
@@ -1049,10 +1084,20 @@ Remarque : si il y a des valeurs manquantes (les `NA`) on peut les éliminer ave
 
 ## Coefficient de corrélation
 
-```{r correlation}
-cor(donnees)
-```
+La calcul du coefficient de corrélation sert à caractériser la **dépendance** entre 2 variables d’une distribution, une population, ou d’un échantillon, c'est à dire la force de la relation entre 2 variables. La fonction `cor()`calcul la matrice de corrélation des variables ; il existe plusieurs methodes de calcul :
 
+- Le coefficient de corrélation de Pearson permet de mesuré la **dépendance linéaire** entre deux variables
+- Le coefficient de corrélation (ou rho) de Spearman permet de mesuré la **dépendance statistique non paramétrique** entre deux variables, utilisation du rangs des valeurs. Le calcul est basé sur les déviations.
+- Le coefficient de corrélation (ou tau) de Kendall permet de mesuré la **dépendance statistique non paramétrique** entre deux variables, le calcul est basé sur des paires concordante et discordantes. Plus adapté avec des échantillons de petite taille.
+
+```{r correlation}
+cor(donnees, method = c("pearson"))
+cor(donnees, method = c("kendall"))
+cor(donnees, method = c("spearman"))
+```
+Remarque :
+- Pour les deux methodes non paramétrique ($\rho$ Spearman/ $\tau$ Kendal) on peut observé que les valeurs du coefficient sont plus petite pour Kendall qu pour Speaman
+- Voir l'article sur le [clustering]() pour davantage d'informations
 ___
 
 # plot
@@ -1109,6 +1154,8 @@ ggplot(donnees, aes(x=souris, y=gene_un)) +
 
 ## Venn Diagram
 
+Les Venn Diagram (ou diagramme logique) sont graphes montrant les **relations logiques** entre différents ensembles.
+
 ### Version basique
 
 ```{r}
@@ -1123,14 +1170,15 @@ venn.plot <- draw.pairwise.venn(A+AB, B+AB, AB,
 grid.draw(venn.plot)
 ```
 
-### Version stylé
+### Version plus avancé
+
 Permet de visualiser la similarité entre plusieurs choses
 
 help : https://stackoverflow.com/questions/45902376/printing-venn-diagram-after-calculating-overlap
 
 ```{r}
-library(RAM)
-library(VennDiagram)
+#library(RAM)
+#library(VennDiagram)
 cardiome <- letters[1:10]
 superset <- letters[8:24]
 overlap <- calculate.overlap(
@@ -1168,6 +1216,9 @@ grid.draw(venn.plot)
 
 ## Manathan plot 
 http://www.gettinggeneticsdone.com/2014/05/qqman-r-package-for-qq-and-manhattan-plots-for-gwas-results.html
+
+___
+___
 
 
 ## Plotter uniquement un sous ensemble de données avec ggplot
