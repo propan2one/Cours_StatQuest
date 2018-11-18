@@ -822,6 +822,32 @@ d <- as.data.frame(m)
 d[is.na(d)] <- 0
 ```
 
+#### Coller les colonnes de deux dataframes
+
+La fonction `cbind()` pour "column bind" permet de coller 2 dataframes "l'un à coté de l'autre". Il est obligatoire d'avoir le **même nombre de ligne** dans les 2 dataframes.
+
+```{r cbind}
+donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15))
+donnees_2 <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7))
+cbind(donnees, donnees_2)
+```
+
+
+#### Coller les lignes de deux dataframes
+
+La fonction `rbind()` pour "row bind" permet de coller 2 dataframes "l'un sous l'autre". Il est obligatoire d'avoir le **même noms de colonne** dans les 2 dataframes. Il existe un moyen si le nombre de colonne n'est pas le même avec `rbind.fill()`
+
+```{r rbind}
+donnees_3 <- data.frame(A=c(18,17,17), B=c(8,12,15), C=c(1,2,3))
+rbind(donnees, donnees_3)
+```
+
+
+```{r rbind_fill}
+donnees_2
+rbind.fill(donnees, donnees_2)
+```
+
 
 ### Opération sur les listes
 
@@ -845,7 +871,6 @@ list_data <- list(c("Jan","Feb","Mar"), matrix(c(3,9,5,1,-2,8), nrow = 2),
 # Access the first element of the list.
 print(list_data[1])
 ```
-
 
 
 #### Enlever une ligne d'un dataframe
@@ -1084,6 +1109,8 @@ sapply(donnees, quantile)
 
 ### Max
 
+Ce qui revient à afficher le 100% de la fonction quantile.
+
 ```{r max}
 sapply(donnees, max)
 ```
@@ -1091,6 +1118,11 @@ sapply(donnees, max)
 
 ### Min
 
+Ce qui revient à afficher le 0% de la fonction quantile.
+
+```{r max}
+sapply(donnees, max)
+```
 
 ### Ecart type
 
@@ -1169,15 +1201,15 @@ p60
 
 ### Script
 
-#### Natif
+#### R Natif
 
 Notont l'utilisation de `vertical=TRUE` pour mettre orienté les bars et `method="jitter"` pour ne pas caché les valeurs identique les unes sous les autres.
 
 ```{r}
-donnees <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
-donnees
+donnees_4 <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
+donnees_4
 
-stripchart(gene_un ~ souris, data = donnees,
+stripchart(gene_un ~ souris, data = donnees_4,
            main = "stripchart de l'expression génique souris wt contre les souris mutante",
            xlab = "touris", ylab = "Gene expression",
            col = c("red", "green"),
@@ -1187,21 +1219,33 @@ stripchart(gene_un ~ souris, data = donnees,
 
 #### Avec ggplot2
 
-Pour plus d'information allé voir : http://www.sthda.com/french/wiki/ggplot2-stripchart-jitter-guide-de-demarrage-rapide-logiciel-r-et-visualisation-de-donnees (mean, legende etc..)
 
 ```{r}
-donnees <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
-donnees
-donnees$souris <- as.factor(donnees$souris)
+donnees_4 <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
+donnees_4
+donnees_4$souris <- as.factor(donnees_4$souris)
 
-library(ggplot2)
 # Stripcharts basiques
-ggplot(donnees, aes(x=souris, y=gene_un)) + 
+ggplot(donnees_4, aes(x=souris, y=gene_un, color=souris)) + 
   geom_jitter(position=position_jitter(0)) # permet de séparer sur le coté, 0 pour une colonne et >0 pour plus distribué les points
 ```
 
+Pour plus d'information allé cette [article](http://www.sthda.com/french/wiki/ggplot2-stripchart-jitter-guide-de-demarrage-rapide-logiciel-r-et-visualisation-de-donnees).
 
 ## Boxplot
+
+Les boxplots sont une représentation simplifié du stripchart. C'est un moyen rapide de décrire un variable. On l'utilise couramment pour comparer un même caractère dans deux échantillons.
+
+```{r}
+box_plot <- ggplot(donnees_4, aes(x=souris, y=gene_un, color=souris)) + 
+  geom_boxplot()+
+  labs(title="Plot of gene expression of one gene per mices",x="mices", y = "gene one")
+box_plot + theme_classic()
+
+#box_plot + stat_summary(fun.y=mean, geom="point", shape=23, size=4) # ajout de la moyenne
+```
+
+Plus d'infos sur cette [article](http://www.sthda.com/french/wiki/ggplot2-box-plot-guide-de-demarrage-rapide-logiciel-r-et-visualisation-de-donnees)
 
 ## Histogramme
 
@@ -1215,10 +1259,18 @@ Les Venn Diagram (ou diagramme logique) sont graphes montrant les **relations lo
 
 ### Version basique
 
-```{r}
-A <- 2
-B <-62
-AB <- 31
+Un moyen simple de faire un venne diagram est fusionner 2 dataframe par une (ou plusieurs) colonne(s) en utilisant la fonction `merge()`. Puis supprimer les lignes ou il y a des `NA` qui ont été introduit avec la fonction `complete.cases()`. Il reste uniquement les lignes qui sont commune aux deux dataframes.
+Il ne reste plus qu'a utiliser le nombre de ligne pour avoir les chiffres qui rempliront le venn diagram.
+
+```{r venn_dia_1}
+donnees
+donnees_3
+
+mergeAB <- merge(donnees, donnees_3, by = c("A", "B"), all = TRUE) # fusion des dataframes, NA si pas de fusion possible
+intersectionAB <- mergeAB[complete.cases(mergeAB), ] # Intersection des 2 dataframes
+A <- nrow(donnees)
+B <-nrow(donnees_3)
+AB <- nrow(intersectionAB)
 grid.newpage()
 venn.plot <- draw.pairwise.venn(A+AB, B+AB, AB,
                                 category = c("noms_fichier_A", "noms_fichier_M"),
