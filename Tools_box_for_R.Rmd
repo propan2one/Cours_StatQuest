@@ -35,6 +35,8 @@ https://adv-r.hadley.nz/quasiquotation.html
           * [Enlever des lignes d'un dataframe par position](#enlever-des-lignes-d'un-dataframe-par-position)
           * [Enlever des lignes d'un dataframe par condition](#enlever-des-lignes-d'un-dataframe-par-condition)
           * [Forcer la transformation de caractère à numérique](#forcer-la-transformation-de-caractère-à-numérique)
+          * [Remplacer NA par 0](#remplacer-na-par-0)
+          * [Merge dataframes](#merge-dataframes)
         * [Manipuler un chaine de caractère](#manipuler-un-chaine-de-caractère)
 * [Statistiques](#statistiques)
     * [Statistique descriptives](#statistique-descriptives)
@@ -633,6 +635,26 @@ distribution_courrier_2
 
 L'avantage est de pas avoir à recoder directerment les variables car **tous les changements sont fait un même temps**.
 
+##### Comparer des vecteurs
+
+https://abcdr.thinkr.fr/comment-comparer-deux-series-de-valeurs-avec-r/
+
+```{r}
+#Prenons 2 séries de valeurs
+x=c(1,5,8,6,4,9,3,8)
+y=c(5,5,4,3,8,7,7)
+    
+union(x,y)  #donnera 1 5 8 6 4 9 3 7
+union(y,x)  #donnera 5 4 3 8 7 1 6 9
+unique(c(x,y))
+
+intersect(x,y)  #donnera 5 8 4 3
+intersect(y,x)  #donnera 5 4 3 8
+
+setdiff(x,y)  #donnera 1 6 9
+setdiff(y,x)  #donnera 7
+```
+
 ### Opération sur les matrices
 
 #### Operation arithmétique sur une matrice
@@ -732,6 +754,18 @@ d <- as.data.frame(m)
 d[is.na(d)] <- 0
 ```
 
+#### Merge dataframes
+
+##### Merge deux dataframes
+
+##### Merge plusieurs dataframes
+
+Avec R on peu merge/fusionner plusieurs dataframe en séléctionnant des colonnes. Pour par exemple les comparers, au delà de 2 c'est moins facile à réaliser
+
+```{r}
+mergeABCD <- Reduce(function(x, y) merge(x, y, by = c("pos", "ALT"), all=TRUE), list(T24, T48, T60, T72))
+```
+
 
 ### Opération sur les listes
 
@@ -755,8 +789,6 @@ list_data <- list(c("Jan","Feb","Mar"), matrix(c(3,9,5,1,-2,8), nrow = 2),
 # Access the first element of the list.
 print(list_data[1])
 ```
-
-
 
 #### Enlever une ligne d'un dataframe
 
@@ -917,6 +949,38 @@ sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(filepath))
 noms_long <- "~/Documents/private_AF11-I-T48_intersec_3_replicats.csv"
 Name_Var <- deparse(substitute(noms_long)) 
 Name_Var
+```
+
+#### Concaténer un vecteur caractère en chaine de caractère
+
+```{r}
+vecteur_str <- c("A","C", "T", "G","A")
+paste0(vecteur_str)
+paste0(vecteur_str, collapse = "")
+```
+
+
+#### Manipuler des sequences d'ADN
+
+https://web.stanford.edu/class/bios221/labs/biostrings/lab_1_biostrings.html
+
+##### Transformer des chaines de caractère en sequences d'ADN 
+
+Il faut pour cela les stocker dans un objet `DNAString`
+
+```{r}
+# Transformer des chaines de caractère en ADN
+b <- DNAString(paste0(share_SNPs_Atl$REF, collapse = ""))
+c <- DNAString(paste0(share_SNPs_Atl$A_ALT_T72_R3, collapse = ""))
+```
+
+
+##### Générer des sequences d'ADN aléatoire
+
+Ici la taille des sequences est de 10
+
+```{r}
+paste(sample(DNA_ALPHABET[1:4], 10, replace=T), collapse="")
 ```
 
 
