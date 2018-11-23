@@ -1,11 +1,19 @@
 ---
-title: "Tools_box"
+title: "toolkits"
 author: "Delmotte Jean"
-date: "8 juillet 2018"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
-A allé voir, ce site semple très complet
-https://adv-r.hadley.nz/quasiquotation.html
+
+# Introduction
+
+Cette article est un **support** réunissant plusieurs éléments indispensable pour travailler avec R, il comprends les bases indispensables du language, de nombreux "tips" qui sont très utile pour les analyses (changer des caractère en numérique par exemple) et les visualisations avec une courte explication de leurs utilisations. Pour le moment le 14/11/2018, l'article n'est pas encore terminé, de plus, tout retour (bon ou mauvais) est interessant à prendre.
+
+Pour allé plus loins une fois que les base sont comprise je vous invite à voir le [site](https://sites.google.com/site/rgraphiques/home) réalisé par Antoine Massé (Université de Bordeaux). Ce site en français explique clairement comment prendre en main R et présente de nombreux exemple et exercice.
+
+# Navigation
+
+Il ne s'agit pas ici d'une table des matières exhaustive de tout le contenue de l'article (ça serait long et chiant à lire). L'idée ici est plutôt de mettre les grandes lignes directrice de l'article. C'est pourquoi il est encouragé lorsque l'on s'intéresse à une des partie de continuer à naviguer.
 
 * [La base](#la-base)
     * [Type d'objets sur R](#type-d'objets-sur-r)
@@ -21,6 +29,8 @@ https://adv-r.hadley.nz/quasiquotation.html
     * [Ecrire un fichier CSV à partir d'un dataframe](#ecrire-un-fichier-csv-à-partir-d'un-dataframe)
     * [Création d'un vecteur de date](#création-d'un-vecteur-de-date)
     * [Gérer les erreurs](#gérer-les-erreurs)
+* [Packages](#packages)
+    * [Utiliser plusieurs packages](#utiliser-plusieurs-packages)
 * [Dataset](#dataset)
     * [Creation par importation de fichier](#creation-par-importation-de-fichier)
         * [Importation de tableaux](#importation-de-tableaux)
@@ -56,9 +66,7 @@ https://adv-r.hadley.nz/quasiquotation.html
     * [Référence document de sortie](#référence-document-de-sortie)
     * [Lancer un fichier Rmd avec des arguments](#lancer-un-fichier-rmd-avec-des-arguments)
 
-# Package
 
-la fonction ci dessous va installé les packages d'un vecteur (ici "packages") si il ne sont pas installé sur l'ordinateur, et si ils le sont, le package va les charger
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -78,12 +86,13 @@ packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RCol
 ipak(packages)
 ```
 
-
 ___
 
 # La base
 
 ## Type d'objets sur R
+
+Les objets les plus importants à retenir sont les [vecteurs](#vecteurs), les [dataframes](#dataframes) et les [matrices](#matrices) toutefois dans un but pédagogique tout les éléments sont expliqué !
 
 ### Objet simple
 
@@ -284,7 +293,7 @@ max(Alea)
 write.table(donnees, file = "MyData.csv")
 
 # Write CSV le fichier est encore à retravailler après pb au niveau des tab etc..
-#write.table(suivie_Morta, file = "/home/jean/Documents/out_R/suivie_mortalite.csv",row.names=TRUE, na="", col.names=TRUE, sep = "\t",
+#write.table(suivie_Morta, file = "~/Documents/out_R/suivie_mortalite.csv",row.names=TRUE, na="", col.names=TRUE, sep = "\t",
 ```
 
 ## Création d'un vecteur de date
@@ -292,6 +301,7 @@ Ici 10 jours :
 
 ```{r}
 date_manips <- c(as.Date('2018-09-26') + 0:10)
+date_manips
 ```
 ## Gérer les erreurs
 
@@ -318,6 +328,58 @@ private_C
 
 ___
 
+# Packages
+
+R bénéficie d'une très large communauté, énormement de package sont créé, amélioré. Certain comme `ggplot2` sont des classiques incontournables !
+Pour installer un package il faut :
+
+- Le télécharger au bonne endroit
+- Le charger dans la mémoire pour pouvoir l'utiliser dans la mémoire
+
+Heureusement, j'ai une [fonction](#utiliser-plusieurs-packages) très utile qui s'occupe de tout et marche dans 99% des cas !
+
+## Télécharger et installer un package
+
+La commande `install.packages()` permet d'installer les packages (d'ou son nom). Il faut mettre le nom du package entre `""`.
+
+```
+install.packages("ggplot2")
+```
+Remarque : si vous êtes sous linux (c'est que vous êtes probablement quelqu'un de bien) et que ça ne fonctionne pas, c'est qu'il faut un accès root. Dans ce cas vous pouvez voir l'article [ici](https://www.r-bloggers.com/installing-r-packages/)
+
+## Charger un package
+
+Toujours avec l'exemple de `ggplot2` 
+```
+library(ggplot2)
+```
+
+## Utiliser plusieurs packages
+
+Lorsque l'on a plusieurs packages il intéressant de ne pas faire 1000x `install.packages` et `library` surtout si certain sont pas encore installé. C'est pour ça que la fonction `ipak()` est très pratique. Pour l'utiliser c'est extremement simple :
+
+- 1) On charge la fonction `ipak()` 
+- 2) On affecte un vecteur, nommé `packages` contenant le noms de tout les packages à utiliser entre `""` et séparé par des virgules `,`
+- 3) On éxécute la fonction sur le vecteur, remarque il faut attendre un certain temps que tout les packages ce charge.
+
+
+```{r ipak}
+# Fonction to install / load package if it's not here
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+# usage
+packages <- c("ggplot2", "knitr")
+ipak(packages)
+```
+
+Remarque : J'utilise cette fonction dans le `{r setup, include=FALSE}` en amont de mes scripts, voir la partie [Rmarkdown](#rmarkdown) pour plus de détails
+___
+
 # Dataset
 
 Pour créer/construire un dataset, on peut faire comme indiqué pour les [Dataframes](#les-dataframes) ou alors on peut les importer.
@@ -330,24 +392,38 @@ Remarque sur les fichier en excel : il faut utiliser les chiffres décimaux avec
 
 ### Importation de tableaux
 
-Pour créer un dataframe appelé `df` à partir du fichier `donneAimporter.txt`
+Pour créer un dataframe appelé `df` à partir du fichier `USArrests.csv` utilisé dans l'exemple de l'article sur la clusterisation.
+
+- `header = TRUE` car la 1er ligne du fichier est le nom de colonne
+- `dec = "."` car les décimals ne sont pas des virgules mais des points
+- `stringsAsFactors=F` car si il y a des observations ce ne sera pas forcément des caractères
+
+
+
 
 ```{r importation_dataframe}
-df <- read.table("~/Documents/donneAimporter.txt", header = FALSE, dec = ".", sep = "\t", stringsAsFactors=F)
-df
+df <- read.table("~/Documents/propan2one.github.io/datas/USArrests.csv", header = TRUE, dec = ".", sep = ",", stringsAsFactors=F)
+rmarkdown::paged_table(df)
 ```
 
 On remarque bien que :
-- Le fichier à récupérer est un chaine de caractère contenant le chemin `~/Document/exemples/` et le nom du fichier `donneAimporter.txt`. 
-- Comme il s'agit d'une chaine de caractère on peut facilement appliquer les fonctions/méthodes qui leurs sont associés. Par exemple la fonction `paste()` qui permet de coller 2 chaines de caractère, ce qui si l'on stocke le chemin dans un variable permet d'importer plein de fichiers plus facilement.
+
+- Le fichier à récupérer est un chaine de caractère contenant le chemin `~/Documents/propan2one.github.io/datas/` et le nom du fichier `USArrests.csv`.
+
+- Comme il s'agit d'une chaine de caractère on peut facilement **appliquer les fonctions/méthodes** qui leurs sont associés. Par exemple la fonction `paste()` qui permet de coller 2 chaines de caractère, ce qui si l'on stocke le chemin dans un variable permet d'importer plein de fichiers plus facilement.
+
 - L'argument `stringsAsFactors` permet de préciser que les chaines de caractères du tableau ne doivent pas être importer au format "factor" (qui est par défaut).
 
 Petit point pour les gens utilisant **Windows** le chemin est noté différement :
+
 - Il y a un `C:` en amont
+
 - Les slashs sont dans l'autre sens, au lieu d'être comme ça `/` ils sont `\`(touche -> Alt Gr + 8)
 
 Il est possible d'importer un nombre de ligne défini :
+
 - Soit avec l'argument `skip` qui permet de préciser le nombre de lignes à **éliminer**.
+
 - Soit avec l'argument `nrows` qui permet de préciser le nombre de lignes à **importer**.
 Importer un nombre de ligne défini peut être utile lorsque l'on souhaite faire de la mise au point d'un gros dataframe pour le réduire.
 
@@ -371,13 +447,16 @@ replicat3 <- as.data.frame(AF11_T48[3])
 On peut créer un objet vecteur de caractères appelé `vect_import` à partir d'un fichier texte.
 
 ```{r scan}
-vect_import <- scan("~/Document/exemples/donneAimporter.txt", what = "")
+vect_import <- scan("~/Documents/propan2one.github.io/datas/donneAimporter.txt", what = "")
 vect_import
 ```
 
-Remarque : 
+Remarque :
+
 - La fonction `scan()` import par défaut des chiffres, or si il y a des caractères il faut ajouter l'argument `what()=""`.
+
 - On peut aussi importer des [listes](#les-listes) avec `scan()`.
+
 - L'importation de vecteur n'est pas très commune contrairement aux dataframes.
 
 ## Importation de dataset présent dans des packages
@@ -386,11 +465,20 @@ Il existe des packages ou sont regrouper des données classiquement utiliser dan
 
 ```{r iris}
 library(datasets)
-iris
+head(iris)
 ```
 
 Ici il s'agit du package `datasets` on l'on retrouve le jeu de donnée "iris".
 
+## Visualisation des données importés
+
+Pour visualiser les données importés, on utilise la fonction `View()` 
+
+```
+View(iris)
+```
+
+___
 
 # Data-mining
 
@@ -445,6 +533,8 @@ summary(liste_1) # décrit les compartiments dans la liste
 summary(tableau_3) # nombres d'élément présent dans la table
 ```
 
+On voit ici des éléments abordé dans la partie des [Statistique descriptives](#statistique-descriptives)
+
 ### Nombre de lignes
 
 Pour un dataframe ou une matrice pour afficher le **nombre de lignes** présent on utilise la fonction `nrow()`
@@ -465,7 +555,7 @@ ncol(matrice)
 
 ## Modification et ou nettoyage des données
 
-Après l'importation des données il est souvent necessaire de les transformer. Bien souvvent lorsqu'un objet est transformer il est necessaire d'assigner la modification au nom de l'objet pour le conserver.
+Après l'importation des données il est souvent necessaire de les transformer. Bien souvent lorsqu'un objet est transformer il est necessaire **d'assigner la modification** à une variable (souvent lui même) pour conserver la modification.
 
 ```{r modif_datas}
 donnees$A
@@ -764,6 +854,31 @@ Avec R on peu merge/fusionner plusieurs dataframe en séléctionnant des colonne
 
 ```{r}
 mergeABCD <- Reduce(function(x, y) merge(x, y, by = c("pos", "ALT"), all=TRUE), list(T24, T48, T60, T72))
+
+#### Coller les colonnes de deux dataframes
+
+La fonction `cbind()` pour "column bind" permet de coller 2 dataframes "l'un à coté de l'autre". Il est obligatoire d'avoir le **même nombre de ligne** dans les 2 dataframes.
+
+```{r cbind}
+donnees <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7), C=c(18,15,16,14,13,17,15,15))
+donnees_2 <- data.frame(A=c(18,17,17,17,12,5,10,8), B=c(8,12,15,10,1,5,20,7))
+cbind(donnees, donnees_2)
+```
+
+
+#### Coller les lignes de deux dataframes
+
+La fonction `rbind()` pour "row bind" permet de coller 2 dataframes "l'un sous l'autre". Il est obligatoire d'avoir le **même noms de colonne** dans les 2 dataframes. Il existe un moyen si le nombre de colonne n'est pas le même avec `rbind.fill()`
+
+```{r rbind}
+donnees_3 <- data.frame(A=c(18,17,17), B=c(8,12,15), C=c(1,2,3))
+rbind(donnees, donnees_3)
+```
+
+
+```{r rbind_fill}
+donnees_2
+rbind.fill(donnees, donnees_2)
 ```
 
 
@@ -838,14 +953,29 @@ donnees
 #### Forcer la transformation de caractère à numérique
 
 ```{r}
-abondance_brut <- data.frame(llply(abondance_brut, function(x) {
-  abondance_brut <- str_replace_all(x, pattern="[^0-9\\.\\,-]", replacement="")
+noms_lignes <- df[,1]
+
+# Change les caractères en numérique <3
+df <- data.frame(llply(df, function(x) {
+  df <- str_replace_all(x, pattern="[^0-9\\.\\,-]", replacement="")
   x <- str_replace(x, pattern="\\,", replacement=".")
   return(as.numeric(x))
-})) # Change les caractères en numérique <3
+}))
+# d'ou enregistrer les noms au préalable dans ce cas
+rownames(df) <- noms_lignes
+class(df)
+df <- as.data.frame(df) # transformer en matrice du coup
+df
 ```
 
-#### 
+#### Afficher la ligne avec la plus haute valeur d'un des vecteurs du dataframe
+
+```{r}
+df[which.min(df$Murder),]
+df[which.max(df$Murder),]
+
+subset(df, df$Murder == max(df$Murder))
+```
 
 ### Manipuler un chaine de caractère
 
@@ -902,7 +1032,7 @@ substr(noms_long, 21, 30)
 
 ##### En fonction d'un motif
 
-Il s'agit ici de maitriser les expressions régulières
+Il s'agit ici de maitriser les **expressions régulières**.
 
 ```{r}
 noms_long <- "~/Documents/private_AF11-I-T48_intersec_3_replicats.csv"
@@ -910,7 +1040,7 @@ sub("^.*AF.8_.*", "", noms_long)
 grep("AF", noms_long, value = TRUE)
 ```
 
-Remarque si l'on veut utiliser des caractères qui sont le même qu pour les expressions réguilère il faut utiliser la synthaxe suivante :
+Remarque : si l'on veut utiliser des caractères qui sont le même qu pour les expressions réguilère il faut utiliser la synthaxe suivante
 
 - `\\.` pour le point
 
@@ -920,16 +1050,20 @@ On peut identifier une expression régulière  avec :
 pat <- "^.*United State.*$"
 ```
 
-Le `^` représente le début de l'expression régulière, et `$` représente la fin. Le `.` représente n'importe quel type de caractère et le `*` défini une répétition (de 0 à n'importe)
+- Le `^` représente le début de l'expression régulière
 
-Here, the ^ represents the beginning and $ the end of the string, while . stands for any character and * defines a repetition (zero to any). You can experiment with modified patterns, such as
+- `$` représente la fin
+
+- Le `.` représente n'importe quel type de caractère 
+
+- Le `*` défini une répétition (de 0 à n'importe)
 
 
 Pour d'avantage d'information consulter : https://rstudio-pubs-static.s3.amazonaws.com/74603_76cd14d5983f47408fdf0b323550b846.html
 
 #### Remplacer un caractères d'une chaine de caractère par autre chose
 
-Ici on va supprimer le "AF" de la variable `noms_long`. On pourrait la remplacer par une autre chaine de caractère ou par rien en utilisant `""`.
+Ici on va **supprimer** le "AF" de la variable `noms_long`. On pourrait la **remplacer** par une autre chaine de caractère ou par rien en utilisant `""`.
 
 ```{r replace_carac}
 noms_long <- "~/Documents/private_AF11-I-T48_intersec_3_replicats.csv"
@@ -990,15 +1124,133 @@ Post très utile avec les visualisations des p-values : https://www.r-bloggers.c
 
 ## Statistique descriptives
 
-p53
+Pour travailler sur un jeu de donnée R possède des fonctions pour avoir un description des données. Pour rappel, en général on organise le dataframe avec les observations/individus en ligne (rows) et les variables en colonnes (columns). Ces fonction peuvent être utilisé sur des vecteurs (et donc dataframes, matrices, etc..).
+
+Remarque, d'autres articles vont reprendre en détails ces paramètres car ils sont incontounable en datascience.
 
 ### Moyenne
 
-### Median
+La moyenne sert à **visualiser l'ordre de grandeur d’une distribution**, une population, ou d’un échantillon.
+Il s'agit de la moyenne arithmétique des varaiable quantitatives. On utilise des vecteurs pour fournir les valeurs à la fonction.
+
+```{r mean}
+mean(c(1,9,16,84,9,354,7)) # vecteurs 
+donnees
+mean(donnees$A) # Moyenne sur le dataframe intitulé donnees
+```
+
+Remarque : si il y a des valeurs manquantes (les `NA`) on peut les éliminer avec `na.rm = TRUE` tel que 
+```{r mean_na}
+mean(donnees$A, na.rm = TRUE)
+```
+
+
+### Mediane
+
+La variance sert à **visualiser l'ordre de grandeur** d’une distribution, une population, ou d’un échantillon. Il s'agit de voir quelle est la valeur au centre des observations trié, ou il y a 50% des observation d'un côté, et 50% de l'autre.
+
+```{r median}
+median(donnees$A)
+median(c(1,5,5,6,12,89,2390)) # 7 éléments ordonnées
+median(c(12,5,89,6,5,2390,1)) # 7 éléments désordonnées
+median(c(12,5,89,5,1, 6)) # 6 éléments
+```
+
+Remarque : 
+
+- On voit bien que dans le cas de le classement, 2 éléments identique compte bien pour 2
+- On voit aussi que si la taille de l'échantillon est paire, il s'agit de la demi-somme des deux valeurs du milieux
+
+### Quantile
+
+Les quantiles sont utile pour **visualiser l'ordre de grandeur d’une distribution**, une population, ou d’un échantillon.
+La fonction `quantile()` s'applique sur les colonnes d'un dataframe, pour l'appliqué sur les lognes d'un tableau il faut utiliser la fonction `sapply()`
+
+```{r quantile}
+sapply(donnees, quantile)
+```
+
+
+### Max
+
+Ce qui revient à afficher le 100% de la fonction quantile.
+
+```{r max}
+sapply(donnees, max)
+```
+
+
+### Min
+
+Ce qui revient à afficher le 0% de la fonction quantile.
+
+```{r max}
+sapply(donnees, max)
+```
+
+### Ecart type
+
+Il s'agit de **l'écart type de varaiables quantitatives**. Ici les variances du dataframes `donnees` sont sur la diagonale de ma matrice.
+
+```{r standart_deviation}
+# vecteur
+sd(donnees$A)
+sd(donnees$B)
+sd(c(1,9,16,84,9,354,7))
+```
+
+Remarque : si il y a des valeurs manquantes (les `NA`) on peut les éliminer avec `na.rm = TRUE` mais **attention**, ça va retirer tout les ligne du dataframe si il y a  ne serait-ce qu'un seul `NA` ! De plus, il existe des techniques pour estimer les valeurs manquantes (non détaillé ici).
 
 ### Variance
 
+La variance sert à caractériser la dispersion d’une distribution, une population, ou d’un échantillon autour de sa moyenne ou son espérance.
+
+```{r variance}
+# vecteur
+var(donnees$A)
+var(donnees$B)
+var(c(1,9,16,84,9,354,7))
+
+# relation variance et ecart type btw
+(sd(donnees$A))^2
+# Dataframe
+var(donnees)
+```
+
+
 ### Co-variance
+
+Si la variance permet d’étudier les variations d’une variable par rapport à elle-même, la covariance va permettre d’étudier les variations simultanées de deux variables par rapport à leur moyenne respective.
+
+Il s'agit ici de la **co-variance non biaisées des varaiables quantitatives**. Ici les variances du dataframes `donnees` sont sur la diagonale de la matrice.
+
+```{r covariance}
+# vecteur
+cov(donnees$A, donnees$B)
+
+
+# Dataframe
+cov(donnees)
+```
+
+Remarque : si il y a des valeurs manquantes (les `NA`) on peut les éliminer avec `na.rm = TRUE` mais **attention**, ça va retirer tout les ligne du dataframe si il y a  ne serait-ce qu'un seul `NA` ! De plus, il existe des techniques pour estimer les valeurs manquantes (non détaillé ici).
+
+## Coefficient de corrélation
+
+La calcul du coefficient de corrélation sert à caractériser la **dépendance** entre 2 variables d’une distribution, une population, ou d’un échantillon, c'est à dire la force de la relation entre 2 variables. La fonction `cor()`calcul la matrice de corrélation des variables ; il existe plusieurs methodes de calcul :
+
+- Le coefficient de corrélation de Pearson permet de mesuré la **dépendance linéaire** entre deux variables
+- Le coefficient de corrélation (ou rho) de Spearman permet de mesuré la **dépendance statistique non paramétrique** entre deux variables, utilisation du rangs des valeurs. Le calcul est basé sur les déviations.
+- Le coefficient de corrélation (ou tau) de Kendall permet de mesuré la **dépendance statistique non paramétrique** entre deux variables, le calcul est basé sur des paires concordante et discordantes. Plus adapté avec des échantillons de petite taille.
+
+```{r correlation}
+cor(donnees, method = c("pearson"))
+cor(donnees, method = c("kendall"))
+cor(donnees, method = c("spearman"))
+```
+Remarque :
+- Pour les deux methodes non paramétrique ($\rho$ Spearman/ $\tau$ Kendal) on peut observé que les valeurs du coefficient sont plus petite pour Kendall qu pour Speaman
+- Voir l'article sur le [clustering]() pour davantage d'informations
 ___
 
 # plot
@@ -1013,15 +1265,15 @@ p60
 
 ### Script
 
-#### Natif
+#### R Natif
 
 Notont l'utilisation de `vertical=TRUE` pour mettre orienté les bars et `method="jitter"` pour ne pas caché les valeurs identique les unes sous les autres.
 
 ```{r}
-donnees <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
-donnees
+donnees_4 <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
+donnees_4
 
-stripchart(gene_un ~ souris, data = donnees,
+stripchart(gene_un ~ souris, data = donnees_4,
            main = "stripchart de l'expression génique souris wt contre les souris mutante",
            xlab = "touris", ylab = "Gene expression",
            col = c("red", "green"),
@@ -1031,21 +1283,33 @@ stripchart(gene_un ~ souris, data = donnees,
 
 #### Avec ggplot2
 
-Pour plus d'information allé voir : http://www.sthda.com/french/wiki/ggplot2-stripchart-jitter-guide-de-demarrage-rapide-logiciel-r-et-visualisation-de-donnees (mean, legende etc..)
 
 ```{r}
-donnees <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
-donnees
-donnees$souris <- as.factor(donnees$souris)
+donnees_4 <- data.frame(gene_un=c(185,178,175,171,172 ,165, 170, 171, 164, 182 ), gene_deux=c(82,69,70,65,68, 70, 71, 67, 63, 80), souris=c("wt","wt","wt","m","m","wt","wt","m","m","m"))
+donnees_4
+donnees_4$souris <- as.factor(donnees_4$souris)
 
-library(ggplot2)
 # Stripcharts basiques
-ggplot(donnees, aes(x=souris, y=gene_un)) + 
+ggplot(donnees_4, aes(x=souris, y=gene_un, color=souris)) + 
   geom_jitter(position=position_jitter(0)) # permet de séparer sur le coté, 0 pour une colonne et >0 pour plus distribué les points
 ```
 
+Pour plus d'information allé cette [article](http://www.sthda.com/french/wiki/ggplot2-stripchart-jitter-guide-de-demarrage-rapide-logiciel-r-et-visualisation-de-donnees).
 
 ## Boxplot
+
+Les boxplots sont une représentation simplifié du stripchart. C'est un moyen rapide de décrire un variable. On l'utilise couramment pour comparer un même caractère dans deux échantillons.
+
+```{r}
+box_plot <- ggplot(donnees_4, aes(x=souris, y=gene_un, color=souris)) + 
+  geom_boxplot()+
+  labs(title="Plot of gene expression of one gene per mices",x="mices", y = "gene one")
+box_plot + theme_classic()
+
+#box_plot + stat_summary(fun.y=mean, geom="point", shape=23, size=4) # ajout de la moyenne
+```
+
+Plus d'infos sur cette [article](http://www.sthda.com/french/wiki/ggplot2-box-plot-guide-de-demarrage-rapide-logiciel-r-et-visualisation-de-donnees)
 
 ## Histogramme
 
@@ -1055,28 +1319,39 @@ ggplot(donnees, aes(x=souris, y=gene_un)) +
 
 ## Venn Diagram
 
+Les Venn Diagram (ou diagramme logique) sont graphes montrant les **relations logiques** entre différents ensembles.
+
 ### Version basique
 
-```{r}
-A <- 2
-B <-62
-AB <- 31
+Un moyen simple de faire un venne diagram est fusionner 2 dataframe par une (ou plusieurs) colonne(s) en utilisant la fonction `merge()`. Puis supprimer les lignes ou il y a des `NA` qui ont été introduit avec la fonction `complete.cases()`. Il reste uniquement les lignes qui sont commune aux deux dataframes.
+Il ne reste plus qu'a utiliser le nombre de ligne pour avoir les chiffres qui rempliront le venn diagram.
+
+```{r venn_dia_1}
+donnees
+donnees_3
+
+mergeAB <- merge(donnees, donnees_3, by = c("A", "B"), all = TRUE) # fusion des dataframes, NA si pas de fusion possible
+intersectionAB <- mergeAB[complete.cases(mergeAB), ] # Intersection des 2 dataframes
+A <- nrow(donnees)
+B <-nrow(donnees_3)
+AB <- nrow(intersectionAB)
 grid.newpage()
 venn.plot <- draw.pairwise.venn(A+AB, B+AB, AB,
-                                category = c(noms_fichier_A, noms_fichier_M),
+                                category = c("noms_fichier_A", "noms_fichier_M"),
                                 fill = c("blue", "red"),
                                 scaled = FALSE)
 grid.draw(venn.plot)
 ```
 
-### Version stylé
+### Version plus avancé
+
 Permet de visualiser la similarité entre plusieurs choses
 
 help : https://stackoverflow.com/questions/45902376/printing-venn-diagram-after-calculating-overlap
 
 ```{r}
-library(RAM)
-library(VennDiagram)
+#library(RAM)
+#library(VennDiagram)
 cardiome <- letters[1:10]
 superset <- letters[8:24]
 overlap <- calculate.overlap(
@@ -1115,6 +1390,9 @@ grid.draw(venn.plot)
 ## Manathan plot 
 http://www.gettinggeneticsdone.com/2014/05/qqman-r-package-for-qq-and-manhattan-plots-for-gwas-results.html
 
+___
+___
+
 
 ## Plotter uniquement un sous ensemble de données avec ggplot
 
@@ -1126,10 +1404,10 @@ voir : https://datacarpentry.org/dc_zurich/R-ecology/05-visualisation-ggplot2.ht
 
 #### 1. basique
 ```{r}
-ggplot(subset(surveys_complete, species_id == "DS"),
-       aes(x = weight, y = hindfoot_length, colour = species_id)) +
+ggplot(subset(USArrests, Rape >20),
+       aes(x = weight, y = hindfoot_length) +
   geom_point(alpha = 0.3,  position = position_jitter()) + stat_smooth(method = "lm") +
-  ylim(c(0, 60))
+  ylim(c(0, 60)))
 ```
 #### 2. Avec grepl
 
@@ -1261,6 +1539,7 @@ Stackoverflow how to make link in rmarkdown file : https://stackoverflow.com/que
 
 ## loop sur des fichier Rmarkdown avec des arguments et des output file spécifique
 
+Lorsqu'il faut faire tourner un script sur l'ensemble des fichiers présent dans un dossier on peut (si on est sur linux/mac) faire une boucle qui va 
 
 ```{bash}
 for dir in ~/Documents/resultats_pysamstats/pysamsatats_divoshv1/*AF11-I-T48*/
@@ -1270,7 +1549,7 @@ do
     files=(`ls ${dir}*_aln_PysamStat_var_raw.txt`)
     params="A='${files[0]}',B='${files[1]}',C='${files[2]}', d='30', n='${expe##*/}'" 
     #Rscript -e "rmarkdown::render('~/Documents/divohsv1/analyse_fichier_pysamstats.Rmd', params=list(${params}))"
-    Rscript -e "rmarkdown::render('~/Documents/divohsv1/analyse_fichier_pysamstats.Rmd', params=list(${params}),output_file = '${expe##*/}.html', output_dir = '/home/jean/Documents/resultats_pysamstats/')"
+    Rscript -e "rmarkdown::render('~/Documents/divohsv1/analyse_fichier_pysamstats.Rmd', params=list(${params}),output_file = '${expe##*/}.html', output_dir = '~/Documents/resultats_pysamstats/')"
 done
 ```
 
@@ -1289,8 +1568,8 @@ https://stackoverflow.com/questions/29354674/knitr-with-the-biblatex-option?rq=1
 ## Compile le document en rmarkdown dans le chunk
 
 ```{r}
-# comparaison_F11_A-M.Rmd est le nom du fichier
-rmarkdown::render("comparaison_F11_A-M.Rmd", "all") 
+# your_Script_R.Rmd est le nom du fichier
+rmarkdown::render("your_Script_R.Rmd", "all") 
 ```
 
 ## Lancer un fichier Rmd avec des arguments
@@ -1306,21 +1585,21 @@ Rscript -e "rmarkdown::render('Fichier_for_Knit.Rmd', clean=TRUE)"
 
 ### Avec des arguments
 
-Les `""` dans devant le `rmarkdown::render` sont *obligatoirement des guillements** alors que pour les arguments (ici A, B et C) il s'agit **obligatoirement d'apostrophes simples** !
+Les `""` dans devant le `rmarkdown::render` sont **obligatoirement des guillements** alors que pour les arguments (ici A, B et C) il s'agit **obligatoirement d'apostrophes simples** !
 
 
 ```bash
 # Ligne de commande dans le terminal
-Rscript -e "rmarkdown::render('comparaison_F11_A-M.Rmd', params=list(A = 'private_AF11-I-T48_intersec_3_replicats.csv', B = 'private_MF11-I-T48_intersec_3_replicats.csv', C = 'AF11-I-T48_intersec_3_replicats_inter_MF11-I-T48_intersec_3_replicats.csv'))"
+Rscript -e "rmarkdown::render('your_Script_R.Rmd', params=list(A = 'argument_files_A.csv', B = 'argument_files_B.csv', C = 'argument_files_C.csv'))"
 ```
 
-L'entête du fichier  `comparaison_F11_A-M.Rmd` étant: 
+L'entête du fichier `your_Script_R.Rmd` étant: 
 
 ```
 ---
 title: "Comparaison de 2 fichiers VCFs"
-author: "Delmotte_jean"
-date: "19 septembre 2018"
+author: "Votre_nom"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 params:
   A: "A"
