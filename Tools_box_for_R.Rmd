@@ -239,6 +239,15 @@ distribution_courrier <- factor(c(5,0,10,5,5,0), levels = c(0,5,10), labels = c(
 distribution_courrier
 ```
 
+Ou directement si ils sont déjà nommer
+```{r facteur_4}
+distribution_courrier <- factor(c(5,0,10,5,5,0), levels = c(0,5,10))
+distribution_courrier
+distribution_courrier <- ordered(distribution_courrier,
+                         levels = c(0,5,10), labels = c("rapide", "moyen", "fort"))
+distribution_courrier
+```
+
 - On peut observer que pour `distribution_courrier` les "Levels" qui indique les différentes classe, sont affichés avec un ordre signalé par les chevrons `<`.
 
 ### Les Tables

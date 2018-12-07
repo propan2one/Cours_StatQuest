@@ -1,0 +1,60 @@
+---
+title: "analysis_daoulas_abundances"
+author: "Delmotte_jean"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Fonction to install / load package if it's not here
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+# usage
+packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RColorBrewer",
+              "lattice", "scales", "plotrix", "gridExtra", "reshape2", "tidyr", "ggpubr")
+ipak(packages)
+```
+
+Nous allons utiliser dans un premier temps une **one-way ANOVA** (analysis of variance), aussi appelé one-factor ANOVA, est une extension du t-test d'indépendance de 2 échantillons pour comparer des mesures dans une situation de plus de 2 groupes. Dans le one-way ANOVA, les données sont organisé dans différents groupe de base pour un seule variable de groupe (aussi appelé *factor* variable).
+
+### ANOVA  test hypotheses
+- $H_{0}$ : les des différents groupes **sont les mêmes**
+- $H_{1}$ : Au moins l'une des moyennes des échantillons **n'est pas égale** aux autres
+
+remarque : Si il n'y a que 2 groupe, un t-test est faiseable.
+
+### Assumptions of ANOVA test
+
+ANOVA test can be applied only when : 
+- Les observations sont obtenues indépendament et de manière aléatoires dans la population définis par les niveau des facteurs
+- Les données pour chacun des facteur est **normalement distribué**
+- Les populations ont les mêmes variances (Levene's test pour tester ça)
+
+### Comment marche une ANOVA one way
+
+
+
+Question: We want to know if there is any significant difference, in sepal and petal length, between the different species.
+```{r}
+# Description des échantillons
+levels(norma_famille$famille)
+levels(norma_famille$envirronement)
+
+subset(norma_famille, grepl("A",norma_famille$envirronement) & grepl(9,norma_famille$famille))
+subset(norma_famille, grepl("A",norma_famille$envirronement))
+
+sepl <- iris$Sepal.Length
+petl <- iris$Petal.Length
+# MANOVA test
+res.man <- manova(cbind(Sepal.Length, Petal.Length) ~ Species, data = iris)
+summary(res.man)
+
+
+```
