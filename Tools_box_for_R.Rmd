@@ -282,8 +282,6 @@ min(Alea)
 max(Alea)
 ```
 
-
-
 ## Ecrire un fichier CSV à partir d'un dataframe
 
 ```{r}
@@ -1120,7 +1118,7 @@ sapply(donnees, max)
 
 Ce qui revient à afficher le 0% de la fonction quantile.
 
-```{r max}
+```{r min}
 sapply(donnees, max)
 ```
 
@@ -1321,6 +1319,7 @@ venn.diagram(x = list(
 
 grid.draw(venn.plot)
 ```
+
 
 
 ## Manathan plot 
@@ -1546,3 +1545,7 @@ params:
 ```
 
 De plus dans le fichier, les arguments sont appelé pour A /B et C respectivement `params$A` / `params$C` / `params$C`
+
+
+Voir pour le coverage :
+https://davetang.org/muse/2015/08/05/creating-a-coverage-plot-using-bedtools-and-r/

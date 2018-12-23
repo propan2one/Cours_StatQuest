@@ -66,8 +66,10 @@ Les données `USArrests.csv``sont téléchargeables [ici](https://github.com/pro
 ### Importation des données
 
 ```{r importation datas}
+# fix l'alea
+set.seed(123)
 # Importation des datas
-df <- read.table("~/Documents/propan2one.github.io/datas/USArrests.csv", header = FALSE, dec = ".", sep = ",", stringsAsFactors=F)
+
 colnames(df) <-df[1,]
 df <- df[-1,]
 # save les noms dans un vecteur pour après
@@ -103,7 +105,7 @@ df <- data.frame(llply(df, function(x) {
 rownames(df) <- noms_lignes
 class(df)
 df <- as.data.frame(df) # transformer en matrice du coup
-df
+head(df)
 ```
 
 
@@ -172,6 +174,7 @@ Cela revient, en gros, à créer un troisième point à partir des 2 premiers de
 - La distance de Manhattan est égale à la somme des valeurs absolues des différences de coordonnées en X et en Y. O, l'appel aussi *taxi-distance*. Il faut l'imaginé comme ma distance que doit parcourir un taxi dans un ville dons les route constitue un réseau de quadrillage (cf la page [wikipedia](https://upload.wikimedia.org/wikipedia/commons/0/08/Manhattan_distance.svg?uselang=fr), remarque si l'on dénombre les distances on voit que le trajet rouge/jaune et bleu font la même longueur).
 
 $$d_{man}(x,y)=\sum_{i=1}^{n} |{(x_i-y_i)}|$$
+
 Il est évident que la mesure de la distance de Manhattan est plus grande (ou égale) que celle de la distance Euclidienne.
 
 ___
@@ -214,10 +217,39 @@ Où :
 
 - $n_d$ représente le nombre total de paires discordantes
 
+#### Kendall ou Spearman
+
+https://www.statisticssolutions.com/kendalls-tau-and-spearmans-rank-correlation-coefficient/
+
 ### Dissemblance de Bray-Curtis
 
-- La "distance" de Bray-curtis, ou indice de dissimilarité de Bray-curtis est utilisé en biologie pour évaluer la dissimilarité entre 2 échantillons données, en terme d'abondance d'espèces présentes dans chacun de ces échantillons, voir [Wiki](https://fr.wikipedia.org/wiki/Distance_de_Bray-Curtis) que j'ai (un peu) résumé.
+- La "distance" de Bray-curtis (Bray & Curtis 1957), ou indice de dissimilarité de Bray-curtis est utilisé en biologie pour **quantifier la dissimilarité de composition entre 2 échantillons données**, en terme d'abondance d'espèces présentes dans chacun de ces échantillons, voir [Wiki](https://fr.wikipedia.org/wiki/Distance_de_Bray-Curtis) que j'ai (un peu) résumé. L'indice de Bray-Curtis semble le plus optimal pour estimer la "distance" ecologique (il s'agit en théorie d'une relation non linéaire)
 
 L'indice de Bray-Curtis ne statisfait par [l'inégalité triangulaire](https://fr.wikipedia.org/wiki/In%C3%A9galit%C3%A9_triangulaire) (i.e. une mesure minimale), il est appelé distance **à tord** distance !
 
-Cette indice de dissimilarité de Bray-Curtis est compris entre 0 (les deux échantillons on la même composition) à 1 (les échantillons sont totalement dissemblable)
+Cette indice de dissimilarité de Bray-Curtis est compris entre 0 (les deux échantillons on la même composition) à 1 (les échantillons sont totalement dissemblable). Lorsque l'indice de Bray-Curtis est intermédiaire (BC = 0.5) cet indice diffère des autres indices couramment utilisés.
+
+- Pour pouvoir calculer l'indice de dissimilarité de Bray-Curtis, il est nécessaire de considérer les échantillons ayant la même taille, car la "distance" de Bray-Curtis ce base sur le calcul des abondances brutes et non pas relatives des différentes espèces présente dans l'echantillon. C'est donc une mesure modifiée de la distance de Manhattan, où la somme des différences est standardisé par la somme des variable de l'objet.
+
+**XXXX Corriger la formule XXXX**
+
+$$d_{BrayCurtis}(x,y)=\frac{\sum_{i=1}^{n} |{(x_{i,j}-y_{i})}|}{\sum_{i=1}^{n} |{(x_i-y_i)}|}$$
+
+https://www.researchgate.net/post/Bray_Curtis_dissimilarity_VS_Euclidean_distance_on_benthic_invertebrate_samples
+
+http://www.econ.upf.edu/~michael/stanford/maeb5.pdf
+
+___
+
+# Distance matrix computation
+
+## Computing euclidiean distance
+
+### Fonction et package en R pour réaliser la matrice de distance
+
+Il existe plusieurs fonction de différents package pour calculer la distance entre des observations : 
+
+- `dist()` cette fonction est présente de base sur R (*stats package*) qui accepte uniquement les données numériques comme entrée.
+
+- `get_dist()` cette fonction est présente pour le package *factoextra*. Elle accepte uniquement les données numériques comme entrée. Comparer à la fonction standart précédente, elle 
+

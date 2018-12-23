@@ -1,0 +1,48 @@
+---
+title: "Tests statistiques"
+author: "Delmotte jean"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Fonction to install / load package if it's not here
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+# usage
+packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RColorBrewer",
+              "lattice", "scales", "plotrix", "gridExtra", "reshape2", "tidyr", "randomForest",
+              "cowplot", "repr", "Metrics", "AUC")
+ipak(packages)
+
+```
+
+# Introduction
+
+« Parmi les thèmes à propos desquels les statisticiens ne sont pas d'accord, se trouve la définition de leur science. » *Maurice Kendall*
+
+Le but principal de la statistique est de déterminer les caractéristiques d'une population donnée à partir de l'étude d'une partie de cette population, appelé **échantillon**. Ainsi pour avoir un échantillon représentatif d'une population, le meilleur moyen est de tiré au hasard des individus dans la population. Ainsi, tous les individus ont la même chance de se retrouver séléctionné (dans le cas contraire l'échantillon est biaisé).
+
+## Quelques conventions
+
+- Les **variables aléatoire** sont noté *en majuscule*, on la définie comme étant une variable numérique qui dépend d'une expérience soumise au hasard. 
+
+- La **réalisation de ces variables** est noté *en miniscule*, on définie cette réalisation lorsque l'on fait correspondre à un nombre $X$ (une variable aléatoire) un valeur. On dit alors que l'élément élémentaire ce réalise.
+
+- Les quantités surmontées d'un *chapeau* sont des **estimations** de ces mêmes quantités caractérisant la population étudiée et obtenues à partir d'un échantillon.
+
+*Par exemple* :
+
+La somme des faces de deux dés, qui dépend du résultat obtenue par un des 2 joueurs, est une variable aléatoire $X$. Lorsque l'un des joueurs tire les 2 dés, l'élément élémentaire ce réalise. Si la somme par ce joueur correspond à 7 (3/6 et 4/6). On dit que $x_1=7$, il s'agit de la réalisation de la variable aléatoire.
+
+
+- On note $H_0$ **l'hypothèse nulle** et $H_1$ **l'hypothèse alternative**.
+
+- La notation  $P(T \ge t_{obs}|H_0)$ veut dire : "la probabilité que la variable aléatoire $T$ soit supérieur ou égale à la valeur numérique $t_{obs}$ en supposant l'hypothèse nulle $H_0$ vraie".
