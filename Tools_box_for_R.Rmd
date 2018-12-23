@@ -45,6 +45,8 @@ Il ne s'agit pas ici d'une table des matières exhaustive de tout le contenue de
           * [Enlever des lignes d'un dataframe par position](#enlever-des-lignes-d'un-dataframe-par-position)
           * [Enlever des lignes d'un dataframe par condition](#enlever-des-lignes-d'un-dataframe-par-condition)
           * [Forcer la transformation de caractère à numérique](#forcer-la-transformation-de-caractère-à-numérique)
+          * [Remplacer NA par 0](#remplacer-na-par-0)
+          * [Merge dataframes](#merge-dataframes)
         * [Manipuler un chaine de caractère](#manipuler-un-chaine-de-caractère)
 * [Statistiques](#statistiques)
     * [Statistique descriptives](#statistique-descriptives)
@@ -80,7 +82,7 @@ ipak <- function(pkg){
 # usage
 packages <- c("ggplot2", "plyr", "gtools", "dplyr", "ggridges", "stringr", "RColorBrewer",
               "lattice", "scales", "plotrix", "gridExtra", "reshape2", "tidyr", "randomForest",
-              "cowplot", "RAM", "VennDiagram", "datasets")
+              "cowplot", "RAM", "VennDiagram", "datasets", "corrgram")
 ipak(packages)
 ```
 
@@ -234,6 +236,15 @@ Pour finir on peut ordonner les variables (ce qui en fait des variable qualitati
 ```{r facteur_3}
 # Creation d'un facteur en utilisant les levels et les labels - 3
 distribution_courrier <- factor(c(5,0,10,5,5,0), levels = c(0,5,10), labels = c("rapide", "moyen", "fort"), ordered = TRUE)
+distribution_courrier
+```
+
+Ou directement si ils sont déjà nommer
+```{r facteur_4}
+distribution_courrier <- factor(c(5,0,10,5,5,0), levels = c(0,5,10))
+distribution_courrier
+distribution_courrier <- ordered(distribution_courrier,
+                         levels = c(0,5,10), labels = c("rapide", "moyen", "fort"))
 distribution_courrier
 ```
 
@@ -721,6 +732,26 @@ distribution_courrier_2
 
 L'avantage est de pas avoir à recoder directerment les variables car **tous les changements sont fait un même temps**.
 
+##### Comparer des vecteurs
+
+https://abcdr.thinkr.fr/comment-comparer-deux-series-de-valeurs-avec-r/
+
+```{r}
+#Prenons 2 séries de valeurs
+x=c(1,5,8,6,4,9,3,8)
+y=c(5,5,4,3,8,7,7)
+    
+union(x,y)  #donnera 1 5 8 6 4 9 3 7
+union(y,x)  #donnera 5 4 3 8 7 1 6 9
+unique(c(x,y))
+
+intersect(x,y)  #donnera 5 8 4 3
+intersect(y,x)  #donnera 5 4 3 8
+
+setdiff(x,y)  #donnera 1 6 9
+setdiff(y,x)  #donnera 7
+```
+
 ### Opération sur les matrices
 
 #### Operation arithmétique sur une matrice
@@ -820,6 +851,18 @@ d <- as.data.frame(m)
 d[is.na(d)] <- 0
 ```
 
+#### Merge dataframes
+
+##### Merge deux dataframes
+
+##### Merge plusieurs dataframes
+
+Avec R on peu merge/fusionner plusieurs dataframe en séléctionnant des colonnes. Pour par exemple les comparers, au delà de 2 c'est moins facile à réaliser
+
+```{r}
+mergeABCD <- Reduce(function(x, y) merge(x, y, by = c("pos", "ALT"), all=TRUE), list(T24, T48, T60, T72))
+```
+
 #### Coller les colonnes de deux dataframes
 
 La fonction `cbind()` pour "column bind" permet de coller 2 dataframes "l'un à coté de l'autre". Il est obligatoire d'avoir le **même nombre de ligne** dans les 2 dataframes.
@@ -869,7 +912,6 @@ list_data <- list(c("Jan","Feb","Mar"), matrix(c(3,9,5,1,-2,8), nrow = 2),
 # Access the first element of the list.
 print(list_data[1])
 ```
-
 
 #### Enlever une ligne d'un dataframe
 
@@ -1051,6 +1093,38 @@ Name_Var <- deparse(substitute(noms_long))
 Name_Var
 ```
 
+#### Concaténer un vecteur caractère en chaine de caractère
+
+```{r}
+vecteur_str <- c("A","C", "T", "G","A")
+paste0(vecteur_str)
+paste0(vecteur_str, collapse = "")
+```
+
+
+#### Manipuler des sequences d'ADN
+
+https://web.stanford.edu/class/bios221/labs/biostrings/lab_1_biostrings.html
+
+##### Transformer des chaines de caractère en sequences d'ADN 
+
+Il faut pour cela les stocker dans un objet `DNAString`
+
+```{r}
+# Transformer des chaines de caractère en ADN
+b <- DNAString(paste0(share_SNPs_Atl$REF, collapse = ""))
+c <- DNAString(paste0(share_SNPs_Atl$A_ALT_T72_R3, collapse = ""))
+```
+
+
+##### Générer des sequences d'ADN aléatoire
+
+Ici la taille des sequences est de 10
+
+```{r}
+paste(sample(DNA_ALPHABET[1:4], 10, replace=T), collapse="")
+```
+
 
 # Statistiques
 
@@ -1189,7 +1263,26 @@ ___
 
 # plot
 
-p60
+## Faire des sous ensembles pour faire des plots
+
+Une fois que l'on a un dataframe/matrice correctement formaté, voir la partie [datamining](#data-mining), on peut vouloir faire des analyses sur différents sous ensembles. Il existe alors 2 possibilités : 
+
+- Crée un nouveau dataframe en séléctionnant le sous-groupe de données puis faire le graphe du nouveau dataframe.
+
+- Faire directement le graphe en sélectionnant des sous-ensemble directement !
+
+La deuxième solution étant plus élégante et pratique il existe 2 manières de procédé si les données sont numérique ou des caractères. Bien évidemment on peut réaliser plusieurs opérations avec les opérateur logique de R.
+
+### Sous
+
+```{r}
+
+```
+
+
+## Correlogram
+
+https://www.statmethods.net/advgraphs/correlograms.html
 
 ## Stripchart
 ### Intéret
@@ -1418,6 +1511,17 @@ Reorder des colonnes dans un dataframe, ici on met la 12eme colonne du dataframe
 suivie_Morta <- suivie_Morta[,c(12,1:11)]
 ```
 
+
+### Faire commencer un axe à 0
+
+
+```{r}
+df <- data.frame(x = 1:5, y = 1:5)
+p <- ggplot(df, aes(x, y)) + geom_point()
+p <- p + expand_limits(x = 0, y = 0)
+p # not what you are looking for
+```
+
 ## Multiple plot 
 
 https://cran.r-project.org/web/packages/egg/vignettes/Ecosystem.html
@@ -1461,6 +1565,12 @@ figure <- ggarrange(polym_raw_Atl, polym_dif_Atl, polym_filt_Atl + font("x.text"
                     ncol = 1, nrow = 1)
 figure
 ```
+
+
+## Multi plot avec les mêmes légendes
+
+https://stackoverflow.com/questions/47614314/how-to-put-plots-without-any-space-using-plot-grid
+https://stackoverflow.com/questions/40854737/multiple-top-textgrob-titles
 
 # Rmarkdown
 

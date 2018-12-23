@@ -159,6 +159,11 @@ print(paste0("Coin flip is 'heads' (1) for sample A when B is 'tails': ",
 
 On génère 2 ensemble de 10 tirage de pièce. Lancer la pièce 1 fois, avec l'evenement $E=1$ (pile) avec un probabilité de 0.5
 
+
+## Pvalue explain
+
+**Definition**  La pvalue, probabilité calculé, est la probabilité d'observer un résultat **au moins extreme** a ce
+
 ```{r}
 
 ```
