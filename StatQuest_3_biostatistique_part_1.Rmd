@@ -79,6 +79,8 @@ Pour chaque définitions, le mots définit est en gras, sa traduction anglaise e
 
 ## Notation mathématique
 
+http://tice.inpl-nancy.fr/modules/unit-stat/chapitre1/index.html pour la partie sur les probabilités
+
 ### La quantification
 
 - **Pour tout** $x$ dans $A$, la propriété $P(x)$ est vrai s'écrit en symbole mathématique : $(\forall x \in A) P(x)$
