@@ -982,7 +982,7 @@ df
 df[which.min(df$Murder),]
 df[which.max(df$Murder),]
 
-subset(df, df$Murder == max(df$Murder))
+et(df, df$Murder == max(df$Murder))
 ```
 
 ### Manipuler un chaine de caractère
@@ -1033,9 +1033,9 @@ On peut extraire un partie plus petite d'un chaine de caractère de deux manièr
 
 Ici on va récupérer "AF11-I-T48" dans l'exemple "private_AF11-I-T48_intersec_3_replicats.csv". La partie ce trouve entre le caractère 21 et 30 de la chaine de caractère
 
-```{r subset_string}
+```{r et_string}
 noms_long <- "~/Documents/private_AF11-I-T48_intersec_3_replicats.csv"
-substr(noms_long, 21, 30)
+tr(noms_long, 21, 30)
 ```
 
 ##### En fonction d'un motif
@@ -1089,7 +1089,7 @@ sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(filepath))
 
 ```{r}
 noms_long <- "~/Documents/private_AF11-I-T48_intersec_3_replicats.csv"
-Name_Var <- deparse(substitute(noms_long)) 
+Name_Var <- deparse(titute(noms_long)) 
 Name_Var
 ```
 
@@ -1467,6 +1467,14 @@ difference_polym_filtred_Atl <- ggplot(subset(difference_filtration, grepl("A",d
   xlab("Sample") + 
   ylab("Total of polymorphisms")
 ```
+
+
+```{r}
+subset(env_ATL_clean, !(grepl('AM',env_ATL_clean$ENV)) & grepl("*ORF*",env_ATL_clean$ORF))
+```
+
+On utilise `!(grepl())` pour faire la négation de grep
+
 ## Lignes sur un plot
 
 ### Intéret
@@ -1659,3 +1667,16 @@ De plus dans le fichier, les arguments sont appelé pour A /B et C respectivemen
 
 Voir pour le coverage :
 https://davetang.org/muse/2015/08/05/creating-a-coverage-plot-using-bedtools-and-r/
+
+
+
+```{r ranking_orf}
+writeLines("== Classement des ORFs ==")
+
+# Top 10 des ORFs
+for (i in c(1:10)) {
+  print(paste0("L'ORF en ",i, " position est :"))
+  print(count_ORF_ATL[which(count_ORF_ATL$nbre_SNPs == sort(count_ORF_ATL$nbre_SNPs,partial=length(count_ORF_ATL$nbre_SNPs)-i+1)[length(count_ORF_ATL$nbre_SNPs)-i+1]),])
+}
+
+```
